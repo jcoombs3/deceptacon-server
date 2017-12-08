@@ -1,0 +1,17 @@
+{
+  "name": "deceptacon-server",
+  "version": "1.0.0",
+  "dependencies": {
+    "async": "^2.5.0",
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "mongodb": "^2.2.33",
+    "node-fetch": "^1.7.3",
+    "request": "^2.83.0"
+  },
+  "devDependencies": {
+    "axios": "^0.17.0",
+    "form-data": "^2.3.1"
+  }
+}
