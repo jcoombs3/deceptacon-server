@@ -84,11 +84,19 @@ var ERRORS = {
   },
   VILLAGER: {
     ALL: "Failed to get all villagers",
-    ONE: "Failed to get this villager"
+    ONE: "Failed to get this villager",
+    NO: "No villager found with this id"
   },
   CIRCLE: {
     ALL: "Failed to get all circles",
-    ONE: "Failed to get this circle"
+    ONE: "Failed to get this circle",
+    NO: "No circle found with this id"
+  },
+  MODERATE: {
+    NO_VILLAGER_ID: "No villager id",
+    NO_CIRCLE_ID: "No circle id",
+    MODERATOR_FOUND: "another villager is moderating this circle",
+    ALREADY_MODERATING: "this villager is already moderating another room"
   }
 };
 
@@ -138,7 +146,7 @@ app.post("/register/villager", function (req, res) {
 
 // GET ALL VILLAGERS
 app.get("/villager", function (req, res) {
-  db.collection("villager").find({}, {_id: 1, fullname: 1}).toArray(function (err, villagers) {
+  db.collection("villager").find({}, {_id: 1, fullname: 1}).sort({lastname: -1}).toArray(function (err, villagers) {
     if (err) {
       handleError(res, err.message, ERRORS.VILLAGER.ALL);
     } else {
@@ -166,7 +174,7 @@ app.get("/villager/:id", function (req, res) {
 
 // GET ALL CIRCLES
 app.get("/circle", function (req, res) {
-  db.collection("circle").find({}).toArray(function (err, circles) {
+  db.collection("circle").find({}).sort({name: -1}).toArray(function (err, circles) {
     if (err) {
       handleError(res, err.message, ERRORS.CIRCLE.ALL);
     } else {
@@ -175,20 +183,93 @@ app.get("/circle", function (req, res) {
   });
 });
 
+// RESERVE A CIRCLE
+app.post("/circle/reserve", function (req, res) {
+  const villagerId = req.body.villagerId;
+  const circleId = req.body.circleId;
+  
+  if (!villagerId) {
+    handleError(res, "", ERRORS.MODERATE.NO_VILLAGER_ID, 400);
+  } else if (!circleId) {
+    handleError(res, "", ERRORS.MODERATE.NO_CIRCLE_ID, 400);      
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyVillager,
+      verifyNotModerating,
+      verifyCircle,
+      makeModerator
+    ], function (err, result) {
+      res.status(200).json({});
+    });
+  };
+  
+  var verifyVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var verifyNotModerating = function (callback) {
+    db.collection("circle").findOne({moderator: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (iVillager) {
+        handleError(res, "", ERRORS.MODERATE.ALREADY_MODERATING, 400);
+      } else {
+        callback();
+      }
+    });
+  };
+  
+  var verifyCircle = function (callback) {
+    db.collection("circle").findOne({_id: new ObjectId(circleId)}, function (err, circle) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ONE);
+      } else if (circle) {
+        callback(null, circle);
+      } else {
+        handleError(res, "", ERRORS.CIRCLE.NO, 400);
+      }
+    });
+  };
+  
+  var makeModerator = function (circle, callback) {
+    if (circle.moderator) {
+      handleError(res, 'err.message', ERRORS.MODERATE.MODERATOR_FOUND);
+    } else {
+      try {
+        let iTry = db.collection("circle").findOneAndUpdate(
+          {_id: new ObjectId(circleId)},
+          {$set: {"moderator": new ObjectId(villagerId)}},
+          {maxTimeMS: 5}
+        );  
+        callback();
+      }
+      catch(e){
+        handleError(res, "", e, 400);
+      }
+    }
+  };
+      
+  beginAsync();
+});
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 // ERROR HANDLING FOR THE API //
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 function handleError(res, reason, message, code) {
-  if (!deceptaconTests.debug) {
-    console.log("API Error: " + reason);
-    res.status(code || 500).json({
-      "Error": message
-    });
-  } else {
-    console.log("API ERROR: " + message);
-    res.status(200).json({
-      success: true
-    });
-  }
+ console.log("API Error: " + reason);
+  res.status(code || 500).json({
+    "Error": message
+  });
 }

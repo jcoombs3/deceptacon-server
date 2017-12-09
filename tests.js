@@ -27,7 +27,9 @@ module.exports = {
         registerVillagerSameUsername,
         getVillagers,
         getVillager,
-        getCircles
+        getCircles,
+        reserveCircle,
+        reserveAnotherCircle
       ], function (err, result) {
         module.exports.debug = false;
         res.status(200).json({});
@@ -78,6 +80,12 @@ module.exports = {
     */
     var registerVillagerSameUsername = function(callback) {module.exports.SAME_USERNAME(callback)};
     
+    /* 
+      as an app, I want to inform the user they cannot moderate 2 rooms at the same time
+      so that multiple moderators can run circles
+    */
+    var reserveAnotherCircle = function(callback) {module.exports.RESERVE_ANOTHER_CIRCLE(callback)};
+    
     this.debug = true;
     beginAsync();
   },
@@ -109,13 +117,12 @@ module.exports = {
       pin: [0,0,0,0]
     })
     .then(function (response) {
-      // username is duplicate and registration failed
-      handleTestSuccess('sameUsername', response.data);
-      callback();
+      handleTestFailed('sameUsername');
     })
     .catch(function (err) {
-      handleTestFailed('sameUsername');
-      handleError(res, err.message, err.data);
+      // username is duplicate and registration failed
+      handleTestSuccess('sameUsername');
+      callback();
     });
   },
   GET_VILLAGERS: function(callback) {
@@ -161,12 +168,45 @@ module.exports = {
     .catch(function (err) {
       handleTestFailed('getCircles');
     });
+  },
+  RESERVE_CIRCLE: function(callback) {
+    let villager = module.exports.data.villager;
+    let circle = module.exports.data.circle;
+    
+    axios.post(deceptaconUrl+'/circle/reserve', {
+      villagerId: villager._id,
+      circleId: circle._id
+    })
+    .then(function (response) {
+      handleTestSuccess('reserveCircle', response.data);
+      callback();
+    })
+    .catch(function (err) {
+      console.log('if you received this message, consider purging the Database');
+      handleTestFailed('reserveCircle');
+    });
+  },
+  RESERVE_ANOTHER_CIRCLE: function(callback) {
+    let villager = module.exports.data.villager;
+    let circle = module.exports.data.circle;
+    
+    axios.post(deceptaconUrl+'/circle/reserve', {
+      villagerId: villager._id,
+      circleId: circle._id
+    })
+    .then(function (response) {
+      handleTestFailed('reserveAnotherCircle');
+    })
+    .catch(function (err) {
+      handleTestSuccess('reserveAnotherCircle');
+      callback();
+    });
   }
 };
 
 function handleTestSuccess(apiName, data) {
   console.log('~~API Test: ' + apiName + ' | Success');
-  if (!data.success) {
+  if (data && !data.success) {
     console.log(data);
   }
   console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
