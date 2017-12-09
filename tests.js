@@ -29,7 +29,8 @@ module.exports = {
         getVillager,
         getCircles,
         reserveCircle,
-        reserveAnotherCircle
+        reserveAnotherCircle,
+        registerGame
       ], function (err, result) {
         module.exports.debug = false;
         res.status(200).json({});
@@ -69,6 +70,12 @@ module.exports = {
       so that I can moderate a future game
     */
     var reserveCircle = function(callback) {module.exports.RESERVE_CIRCLE(callback)};
+    
+    /* 
+      as a moderator, I would like to create a game for my circle, 
+      so that users can be notified of an 'active' game
+    */
+    var registerGame = function(callback) {module.exports.REGISTER_GAME(callback)};
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
     // ERROR HANDLING 
@@ -200,6 +207,26 @@ module.exports = {
     .catch(function (err) {
       handleTestSuccess('reserveAnotherCircle');
       callback();
+    });
+  },
+  REGISTER_GAME: function(callback) {
+    let villager = module.exports.data.villager;
+    let circle = module.exports.data.circle;
+    let game = {
+      seats: 13
+    }
+    
+    axios.post(deceptaconUrl+'/register/game', {
+      villagerId: villager._id,
+      circleId: circle._id,
+      game: game
+    })
+    .then(function (response) {
+      handleTestSuccess('registerGame', response.data);
+      callback();
+    })
+    .catch(function (err) {
+      handleTestFailed('registerGame');
     });
   }
 };

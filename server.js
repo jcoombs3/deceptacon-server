@@ -80,7 +80,8 @@ function initializeDatabase() {
 var ERRORS = {
   REGISTRATION: {
     USERNAME: "Username is already being used",
-    VILLAGER: "Failed to register villager"
+    VILLAGER: "Failed to register villager",
+    GAME: "failed to register game"
   },
   VILLAGER: {
     ALL: "Failed to get all villagers",
@@ -90,11 +91,13 @@ var ERRORS = {
   CIRCLE: {
     ALL: "Failed to get all circles",
     ONE: "Failed to get this circle",
-    NO: "No circle found with this id"
+    NO: "No circle found with this id",
+    GAME_FOUND: "another game is already active"
   },
   MODERATE: {
     NO_VILLAGER_ID: "No villager id",
     NO_CIRCLE_ID: "No circle id",
+    NO_GAME_OBJECT: "No game params",
     MODERATOR_FOUND: "another villager is moderating this circle",
     ALREADY_MODERATING: "this villager is already moderating another room"
   }
@@ -258,6 +261,125 @@ app.post("/circle/reserve", function (req, res) {
         handleError(res, "", e, 400);
       }
     }
+  };
+      
+  beginAsync();
+});
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// GAME //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+// REGISTER A GAME WITHIN A CIRCLE
+app.post("/register/game", function (req, res) {
+  const villagerId = req.body.villagerId;
+  const circleId = req.body.circleId;
+  const gameObj = req.body.game;
+  gameObj.villagers = [];
+  
+  /* 
+    game consists of 
+    seats (may be more later) 
+  */
+  
+  if (!villagerId) {
+    handleError(res, "", ERRORS.MODERATE.NO_VILLAGER_ID, 400);
+  } else if (!circleId) {
+    handleError(res, "", ERRORS.MODERATE.NO_CIRCLE_ID, 400);      
+  } else if (!gameObj) {
+    handleError(res, "", ERRORS.MODERATE.NO_GAME_OBJECT, 400);     
+  }
+  
+  // villager must be moderater of room
+  
+  // room must not have another game active 
+  
+  // * seats cannot be 0 
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyVillager,
+      verifyCircle,
+      verifyHasNoGame,
+      createGame,
+      addGameToCircle,
+      getUpdatedCircle
+    ], function (err, result) {
+      res.status(200).json({});
+    });
+  };
+  
+  var verifyVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  // verify the circle exists, AND this villager is the moderating
+  var verifyCircle = function (callback) {
+    db.collection("circle").findOne({_id: new ObjectId(circleId), moderator: new ObjectId(villagerId)}, function (err, circle) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ONE);
+      } else if (circle) {
+        callback(null, circle);
+      } else {
+        handleError(res, "", ERRORS.CIRCLE.NO, 400);
+      }
+    });
+  };
+  
+  var verifyHasNoGame = function (circle, callback) {
+    if (circle.game) {
+      handleError(res, err.message, ERRORS.CIRCLE.GAME_FOUND);
+    } else {
+      callback(null, circle);
+    }
+  };
+  
+  var createGame = function (circle, callback) {
+    db.collection("game").insertOne(gameObj, function (err, game) {
+      if (err) {
+        handleError(res, err.message, ERRORS.REGISTRATION.GAME);
+      } else {
+        callback(null, game);
+      }
+    });
+  };
+  
+  var addGameToCircle = function (game, callback) {
+    try {
+      let iTry = db.collection("circle").findOneAndUpdate(
+        {_id: new ObjectId(circleId)},
+        {$set: {"game": new ObjectId(game._id)}},
+        {maxTimeMS: 5}
+      );
+      console.log('---');
+      callback();
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+  };
+  
+  var getUpdatedCircle = function (callback) {
+    db.collection("circle").findOne({_id: new ObjectId(circleId)}, function (err, circle) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ONE);
+      } else if (circle) {
+        res.status(201).json(circle);
+      } else {
+        handleError(res, "", ERRORS.CIRCLE.NO, 400);
+      }
+    });
   };
       
   beginAsync();
