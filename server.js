@@ -8,6 +8,7 @@ var ObjectId = require('mongodb').ObjectId;
 var app = express();
 
 var deceptaconTests = require('./tests');
+var deceptaconMobileData = require('./creation');
 
 var mongodb = require('mongodb'),
   mongoClient = mongodb.MongoClient,
@@ -50,27 +51,7 @@ function capitalize(string) {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 function initializeDatabase() {
-  var i;
-  
-  var CIRCLES = [
-    {"name": "Circle-A"},
-    {"name": "Circle-B"},
-    {"name": "Circle-C"},
-    {"name": "Circle-D"},
-  ];
-  
-  for (i = 0; i < CIRCLES.length; i++) {
-    let ii = i;
-    db.collection("circle").findOne({name: CIRCLES[ii].name}, function (err, iCircle) {
-      if (!iCircle) {
-        db.collection("circle").insertOne(CIRCLES[ii], function (err, doc) {
-          if (!err) {
-            console.log('Created Circle: ' + JSON.stringify(doc.ops[0]));
-          }
-        });
-      }
-    });
-  }
+  deceptaconMobileData.createTestData(db);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -119,6 +100,10 @@ var ERRORS = {
 
 app.get("/test", function (req, res) {
   deceptaconTests.foo(res, db);
+});
+
+app.get("/data", function (req, res) {
+  deceptaconMobileData.createTestData(res, db);
 });
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -721,6 +706,82 @@ app.post("/game/end", function (req, res) {
           active: false,
           ended: true,
           cancelled: false
+        }}},
+        {upsert: true, returnNewDocument: true}, 
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback(null, doc.value);
+          }
+        }
+      );
+    } catch (e){
+      print(e);
+    }
+  };
+  
+  var makeCircleAvailable = function (game, callback) {
+    try {
+      db.collection("circle").findOneAndUpdate(
+        {_id: new ObjectId(game.circle)},
+        {$set: {moderator: null, game: null}},
+        {upsert: true, returnNewDocument: true}, 
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback();
+          }
+        }
+      );
+    } catch (e){
+      print(e);
+    }
+  };
+  
+  var retrieveUpdatedGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  beginAsync();
+});
+
+// CANCEL A GAME
+app.post("/game/cancel", function (req, res) {
+  const gameId = req.body.gameId;
+  
+  if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      cancelGame,
+      makeCircleAvailable,
+      retrieveUpdatedGame,
+    ], function (err, game) {
+      res.status(200).json(game);
+    });
+  };
+  
+  var cancelGame = function (callback) {
+    try {
+      db.collection("game").findOneAndUpdate(
+        {_id: new ObjectId(gameId)},
+        {$set: {status:{
+          active: false,
+          ended: false,
+          cancelled: true
         }}},
         {upsert: true, returnNewDocument: true}, 
         function(err, doc) {

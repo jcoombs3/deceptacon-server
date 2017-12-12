@@ -39,6 +39,7 @@ module.exports = {
         removeVillager,
         beginGame,
         endGame
+        //cancelGame
       ], function (err, result) {
         module.exports.debug = false;
         res.status(200).json({});
@@ -123,6 +124,12 @@ module.exports = {
       so that the room can be available for a new mod
     */
     var endGame = function(callback) {module.exports.END_GAME(callback)};
+    
+    /*
+      as a moderator, I would like to cancel my game,
+      so that the room can be available for a new mod
+    */
+    var cancelGame = function(callback) {module.exports.CANCEL_GAME(callback)};
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
     // ERROR HANDLING 
@@ -362,6 +369,19 @@ module.exports = {
     })
     .catch(function (err) {
       handleTestFailed('endGame');
+    });
+  },
+  CANCEL_GAME: function(callback) {
+    let game = module.exports.data.game;
+    axios.post(deceptaconUrl+'/game/cancel', {
+      gameId: game._id
+    })
+    .then(function (response) {
+      handleTestSuccess('cancelGame', response.data);
+      callback();
+    })
+    .catch(function (err) {
+      handleTestFailed('cancelGame');
     });
   }
 };
