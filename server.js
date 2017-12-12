@@ -666,7 +666,7 @@ app.post("/game/begin", function (req, res) {
         cancelled: false
       }}},
       {upsert: true, returnNewDocument: true}, 
-      function(err, game) {
+      function(err, doc) {
         if (err) { throw err; }
         else { 
           callback();
@@ -706,6 +706,7 @@ app.post("/game/end", function (req, res) {
         callback(null);
       },
       endGame,
+      makeCircleAvailable,
       retrieveUpdatedGame,
     ], function (err, game) {
       res.status(200).json(game);
@@ -715,19 +716,38 @@ app.post("/game/end", function (req, res) {
   var endGame = function (callback) {
     try {
       db.collection("game").findOneAndUpdate(
-      {_id: new ObjectId(gameId)},
-      {$set: {status:{
-        active: false,
-        ended: true,
-        cancelled: false
-      }}},
-      {upsert: true, returnNewDocument: true}, 
-      function(err, game) {
-        if (err) { throw err; }
-        else { 
-          callback();
+        {_id: new ObjectId(gameId)},
+        {$set: {status:{
+          active: false,
+          ended: true,
+          cancelled: false
+        }}},
+        {upsert: true, returnNewDocument: true}, 
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback(null, doc.value);
+          }
         }
-      });
+      );
+    } catch (e){
+      print(e);
+    }
+  };
+  
+  var makeCircleAvailable = function (game, callback) {
+    try {
+      db.collection("circle").findOneAndUpdate(
+        {_id: new ObjectId(game.circle)},
+        {$set: {moderator: null, game: null}},
+        {upsert: true, returnNewDocument: true}, 
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback();
+          }
+        }
+      );
     } catch (e){
       print(e);
     }
