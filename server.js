@@ -6,7 +6,7 @@ var ObjectId = require('mongodb').ObjectId;
 var app = express();
 
 var deceptaconTests = require('./tests');
-var deceptaconMobileData = require('./creation');
+var deceptaconMobileData = require('./data');
 
 var mongodb = require('mongodb'),
   mongoClient = mongodb.MongoClient,

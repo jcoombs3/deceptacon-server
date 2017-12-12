@@ -6,13 +6,13 @@ var CIRCLES = [
 ];
 
 var VILLAGERS = [
-  {firstname: "Villager", lastname: "A", username: "a", pin: [0,0,0,0]},
-  {firstname: "Villager", lastname: "B", username: "b", pin: [0,0,0,0]},
-  {firstname: "Villager", lastname: "C", username: "c", pin: [0,0,0,0]},
-  {firstname: "Villager", lastname: "D", username: "d", pin: [0,0,0,0]},
-  {firstname: "Villager", lastname: "E", username: "e", pin: [0,0,0,0]},
-  {firstname: "Villager", lastname: "F", username: "f", pin: [0,0,0,0]},
-  {firstname: "Villager", lastname: "G", username: "g", pin: [0,0,0,0]}
+  {firstname: "Villager", lastname: "A", username: "a", fullname: "Villager A", pin: [0,0,0,0]},
+  {firstname: "Villager", lastname: "B", username: "b", fullname: "Villager B", pin: [0,0,0,0]},
+  {firstname: "Villager", lastname: "C", username: "c", fullname: "Villager C", pin: [0,0,0,0]},
+  {firstname: "Villager", lastname: "D", username: "d", fullname: "Villager D", pin: [0,0,0,0]},
+  {firstname: "Villager", lastname: "E", username: "e", fullname: "Villager E", pin: [0,0,0,0]},
+  {firstname: "Villager", lastname: "F", username: "f", fullname: "Villager F", pin: [0,0,0,0]},
+  {firstname: "Villager", lastname: "G", username: "g", fullname: "Villager G", pin: [0,0,0,0]}
 ];
 
 module.exports = {
