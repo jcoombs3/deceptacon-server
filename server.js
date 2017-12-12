@@ -169,19 +169,47 @@ app.get("/villager", function (req, res) {
 // GET A VILLAGER 
 app.get("/villager/:id", function (req, res) {
   
-  // get the villager
-  
-  // then get all games the villager has been in (career history)
-  
-  db.collection("villager").findOne({_id: new ObjectId(req.params.id)}, {pin: 0}, function (err, villager) {
-    if (err) {
-      handleError(res, err.message, ERRORS.VILLAGER.ONE);
-    } else if (villager) {
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      getVillager,
+      getCareerHistory
+    ], function (err, villager) {
       res.status(200).json(villager);
-    } else {
-      handleError(res, "", ERRORS.VILLAGER.NO, 400);
-    }
-  });
+    });
+  };
+  
+  var getVillager = function(callback) {
+    db.collection("villager").findOne({_id: new ObjectId(req.params.id)}, {pin: 0}, function (err, villager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (villager) {
+        callback(null, villager);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var getCareerHistory = function(villager, callback) {
+    db.collection("game").find({$or: 
+      [{villagers: {$in: [new ObjectId(req.params.id)]}}, 
+       {moderator: new ObjectId(req.params.id)}] 
+      }).toArray(function (err, games) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (games) {
+        villager.gameHistory = games;
+        callback(null, villager);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  beginAsync();
 });
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
