@@ -1,4 +1,3 @@
-//server.js (todo-ionic2-heroku/server.js)
 var express = require('express');
 var bodyParser = require('body-parser');
 var cors = require('cors');

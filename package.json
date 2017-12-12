@@ -8,10 +8,10 @@
     "express": "^4.16.2",
     "mongodb": "^2.2.33",
     "node-fetch": "^1.7.3",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "axios": "^0.17.0"
   },
   "devDependencies": {
-    "axios": "^0.17.0",
     "form-data": "^2.3.1"
   }
 }
