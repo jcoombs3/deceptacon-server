@@ -36,7 +36,8 @@ module.exports = {
         getGames,
         getGame,
         joinGame,
-        removeVillager
+        removeVillager,
+        beginGame
       ], function (err, result) {
         module.exports.debug = false;
         res.status(200).json({});
@@ -109,6 +110,12 @@ module.exports = {
       so that another villager can take their spot
     */
     var removeVillager = function(callback) {module.exports.REMOVE_VILLAGER(callback)};
+    
+    /*
+      as a moderator, I would like to begin a game,
+      so that my villagers can play my game within the circle
+    */
+    var beginGame = function(callback) {module.exports.BEGIN_GAME(callback)};
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
     // ERROR HANDLING 
@@ -323,7 +330,20 @@ module.exports = {
     .catch(function (err) {
       handleTestFailed('removeVillager');
     });
-  }
+  },
+  BEGIN_GAME: function(callback) {
+    let game = module.exports.data.game;
+    axios.post(deceptaconUrl+'/game/begin', {
+      gameId: game._id
+    })
+    .then(function (response) {
+      handleTestSuccess('beginGame', response.data);
+      callback();
+    })
+    .catch(function (err) {
+      handleTestFailed('beginGame');
+    });
+  },
 };
 
 function handleTestSuccess(apiName, data) {

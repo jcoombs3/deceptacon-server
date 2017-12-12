@@ -636,6 +636,62 @@ app.put("/game/remove", function (req, res) {
   beginAsync();
 });
 
+// BEGIN A GAME
+app.post("/game/begin", function (req, res) {
+  const gameId = req.body.gameId;
+  
+  if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      beginGame,
+      retrieveUpdatedGame,
+    ], function (err, game) {
+      res.status(200).json(game);
+    });
+  };
+  
+  var beginGame = function (callback) {
+    try {
+      db.collection("game").findOneAndUpdate(
+      {_id: new ObjectId(gameId)},
+      {$set: {status:{
+        active: true,
+        complete: false,
+        cancelled: false
+      }}},
+      {upsert: true, returnNewDocument: true}, 
+      function(err, game) {
+        if (err) { throw err; }
+        else { 
+          callback();
+        }
+      });
+    } catch (e){
+      print(e);
+    }
+  };
+  
+  var retrieveUpdatedGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  beginAsync();
+});
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 // ERROR HANDLING FOR THE API //
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
