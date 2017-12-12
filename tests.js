@@ -7,7 +7,8 @@ module.exports = {
   debug: false,
   data: {
     villager: null,
-    circle: null
+    circle: null,
+    game: null
   },
   foo: function (res, db) {
     console.log("############################################");
@@ -17,6 +18,7 @@ module.exports = {
     
     module.exports.data.villager = null;
     module.exports.data.circle = null;
+    module.exports.data.game = null;
     
     var beginAsync = function() {
       async.waterfall([
@@ -30,7 +32,11 @@ module.exports = {
         getCircles,
         reserveCircle,
         reserveAnotherCircle,
-        registerGame
+        registerGame,
+        getGames,
+        getGame,
+        joinGame,
+        removeVillager
       ], function (err, result) {
         module.exports.debug = false;
         res.status(200).json({});
@@ -76,6 +82,33 @@ module.exports = {
       so that users can be notified of an 'active' game
     */
     var registerGame = function(callback) {module.exports.REGISTER_GAME(callback)};
+    
+    /* 
+      as a user, I would like to retrieve all games in the system, 
+      so that I can review the activity
+    */
+    var getGames = function(callback) {module.exports.GET_GAMES(callback)};
+    
+    /* 
+      as a user, I would like to retrieve one game in the system,
+      so that I can view all of its details deceptacon history
+    */
+    var getGame = function(callback) {module.exports.GET_GAME(callback)};
+    
+    /* 
+      as a user, I would like to join a game within a circle, 
+      so that I can play a round of Werewolf or other
+    */
+    var joinGame = function(callback) {module.exports.JOIN_GAME(callback)};
+    
+    /* 
+      as a user, I would like to remove myself from a game, 
+      so that my seat is given up for another user
+      
+      as a moderator, I would like to remove a user from a game,
+      so that another villager can take their spot
+    */
+    var removeVillager = function(callback) {module.exports.REMOVE_VILLAGER(callback)};
     
     // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
     // ERROR HANDLING 
@@ -222,11 +255,73 @@ module.exports = {
       game: game
     })
     .then(function (response) {
+      module.exports.data.circle = response.data;
       handleTestSuccess('registerGame', response.data);
       callback();
     })
     .catch(function (err) {
       handleTestFailed('registerGame');
+    });
+  },
+  GET_GAMES: function(callback) {
+    axios.get(deceptaconUrl+'/game')
+    .then(function (response) {
+      if (response.data) {
+        // should only be 1 so this should be okay
+        module.exports.data.game = response.data[0];
+        handleTestSuccess('getGames', response.data);
+        callback();
+      } else {
+        //handleTestFailed('getGames');
+      }
+    })
+    .catch(function (err) {
+      //handleTestFailed('getGames');
+    });
+  },
+  GET_GAME: function(callback) {
+    let game = module.exports.data.game;
+    axios.get(deceptaconUrl+'/game/'+game._id)
+    .then(function (response) {
+      if (response.data) {
+        handleTestSuccess('getGame', response.data);
+        callback();
+      } else {
+        handleTestFailed('getGame');
+      }
+    })
+    .catch(function (err) {
+      handleTestFailed('getGame');
+    });
+  },
+  JOIN_GAME: function(callback) {
+    let villager = module.exports.data.villager;
+    let game = module.exports.data.game;
+    axios.post(deceptaconUrl+'/game/join', {
+      villagerId: villager._id,
+      gameId: game._id
+    })
+    .then(function (response) {
+      handleTestSuccess('joinGame', response.data);
+      callback();
+    })
+    .catch(function (err) {
+      handleTestFailed('joinGame');
+    });
+  },
+  REMOVE_VILLAGER: function(callback) {
+    let villager = module.exports.data.villager;
+    let game = module.exports.data.game;
+    axios.put(deceptaconUrl+'/game/remove', {
+      villagerId: villager._id,
+      gameId: game._id
+    })
+    .then(function (response) {
+      handleTestSuccess('removeVillager', response.data);
+      callback();
+    })
+    .catch(function (err) {
+      handleTestFailed('removeVillager');
     });
   }
 };

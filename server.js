@@ -94,6 +94,14 @@ var ERRORS = {
     NO: "No circle found with this id",
     GAME_FOUND: "another game is already active"
   },
+  GAME: {
+    ALL: "Failed to get all games",
+    ONE: "Failed to get this game",
+    NO: "No game found with this id",
+    NO_VILLAGER_ID: "No villager id was supplied",
+    NO_GAME_ID: "No villager id was supplied",
+    GAME_FULL: "Game is full"
+  },
   MODERATE: {
     NO_VILLAGER_ID: "No villager id",
     NO_CIRCLE_ID: "No circle id",
@@ -160,6 +168,11 @@ app.get("/villager", function (req, res) {
 
 // GET A VILLAGER 
 app.get("/villager/:id", function (req, res) {
+  
+  // get the villager
+  
+  // then get all games the villager has been in (career history)
+  
   db.collection("villager").findOne({_id: new ObjectId(req.params.id)}, {pin: 0}, function (err, villager) {
     if (err) {
       handleError(res, err.message, ERRORS.VILLAGER.ONE);
@@ -275,12 +288,10 @@ app.post("/register/game", function (req, res) {
   const villagerId = req.body.villagerId;
   const circleId = req.body.circleId;
   const gameObj = req.body.game;
+  gameObj.moderator = villagerId;
   gameObj.villagers = [];
-  
-  /* 
-    game consists of 
-    seats (may be more later) 
-  */
+  gameObj.timestamp = new Date();
+  gameObj.circle = circleId;
   
   if (!villagerId) {
     handleError(res, "", ERRORS.MODERATE.NO_VILLAGER_ID, 400);
@@ -289,12 +300,6 @@ app.post("/register/game", function (req, res) {
   } else if (!gameObj) {
     handleError(res, "", ERRORS.MODERATE.NO_GAME_OBJECT, 400);     
   }
-  
-  // villager must be moderater of room
-  
-  // room must not have another game active 
-  
-  // * seats cannot be 0 
   
   var beginAsync = function () {
     async.waterfall([
@@ -362,7 +367,6 @@ app.post("/register/game", function (req, res) {
         {$set: {"game": new ObjectId(game._id)}},
         {maxTimeMS: 5}
       );
-      console.log('---');
       callback();
     }
     catch(e){
@@ -382,6 +386,225 @@ app.post("/register/game", function (req, res) {
     });
   };
       
+  beginAsync();
+});
+
+// GET ALL GAMES
+app.get("/game", function (req, res) {
+  db.collection("game").find({}).toArray(function (err, games) {
+    if (err) {
+      handleError(res, err.message, ERRORS.GAME.ALL);
+    } else {
+      res.status(200).json(games);
+    }
+  });
+});
+
+// GET A GAME 
+app.get("/game/:id", function (req, res) {
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      getGame,
+      getModerator,
+      getVillagers
+    ], function (err, result) {
+      res.status(200).json({});
+    });
+  };
+  
+  var getGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(req.params.id)}, function (err, game) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (game) {
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getModerator = function (game, callback) {
+    db.collection("villager").findOne({_id: new ObjectId(game.moderator)}, {pin: 0}, function (err, villager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (villager) {
+        game.moderator = villager.fullname;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var getVillagers = function (game, callback) {
+    db.collection("villager").find({_id: {$in: game.villagers}}, {pin:0}).toArray(function(err, villagers) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ALL);
+      } else if (villagers) {
+        game.villagers = villagers;
+        res.status(200).json(game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.ALL, 400);
+      }
+    });
+  };
+  
+  beginAsync();
+});
+
+// JOIN A GAME 
+app.post("/game/join", function (req, res) {
+  const villagerId = req.body.villagerId;
+  const gameId = req.body.gameId;
+  
+  if (!villagerId) {
+    handleError(res, "", ERRORS.GAME.NO_VILLAGER_ID, 400);
+  } else if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);     
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyVillager,
+      verifyGame,
+      verifySeatAvailable,
+      reserveSeat
+    ], function (err, result) {
+      res.status(200).json({});
+    });
+  };
+  
+  var verifyVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var verifyGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var verifySeatAvailable = function (game, callback) {
+    if (game.villagers.length < game.seats) {
+      callback();
+    } else {
+      handleError(res, err.message, ERRORS.GAME.GAME_FULL);
+    }
+  };
+  
+  var reserveSeat = function (callback) {
+    try {
+      let iTry = db.collection("game").findOneAndUpdate(
+        {_id: new ObjectId(gameId)},
+        {$addToSet: {"villagers": new ObjectId(villagerId)}},
+        {maxTimeMS: 5}
+      );  
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+    setTimeout(function() {
+      db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, game) {
+        if (err) {
+          handleError(res, err.message, ERRORS.GAME.ONE);
+        } else if (game) {
+          res.status(200).json(game);
+        } else {
+          handleError(res, "", ERRORS.GAME.NO, 400);
+        }
+      });
+    }, 10);
+  };
+
+  beginAsync();
+});
+
+// REMOVE VILLAGER FROM A GAME 
+app.put("/game/remove", function (req, res) {
+  const villagerId = req.body.villagerId;
+  const gameId = req.body.gameId;
+  
+  if (!villagerId) {
+    handleError(res, "", ERRORS.GAME.NO_VILLAGER_ID, 400);
+  } else if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);     
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyVillager,
+      verifyGame,
+      removeVillager
+    ], function (err, result) {
+      res.status(200).json({});
+    });
+  };
+  
+  var verifyVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var verifyGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var removeVillager = function (game, callback) {
+    db.collection("game").update({
+      _id: new ObjectId(gameId)
+    }, {
+      $pull: {villagers: new ObjectId(villagerId)}
+    }, function (err, result) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (result) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+
   beginAsync();
 });
 
