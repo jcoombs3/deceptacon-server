@@ -140,7 +140,7 @@ app.post("/register/villager", function (req, res) {
 
 // GET ALL VILLAGERS
 app.get("/villager", function (req, res) {
-  db.collection("villager").find({}, {_id: 1, fullname: 1}).sort({lastname: -1}).toArray(function (err, villagers) {
+  db.collection("villager").find({}, {_id: 1, fullname: 1}).sort({lastname: 1}).toArray(function (err, villagers) {
     if (err) {
       handleError(res, err.message, ERRORS.VILLAGER.ALL);
     } else {
@@ -201,7 +201,7 @@ app.get("/villager/:id", function (req, res) {
 
 // GET ALL CIRCLES
 app.get("/circle", function (req, res) {
-  db.collection("circle").find({}).sort({name: -1}).toArray(function (err, circles) {
+  db.collection("circle").find({}).sort({name: 1}).toArray(function (err, circles) {
     if (err) {
       handleError(res, err.message, ERRORS.CIRCLE.ALL);
     } else {
