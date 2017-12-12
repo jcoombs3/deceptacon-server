@@ -3,7 +3,6 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var async = require('async');
-var axios = require('axios');
 var ObjectId = require('mongodb').ObjectId;
 var app = express();
 
