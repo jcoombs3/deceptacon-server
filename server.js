@@ -257,7 +257,8 @@ app.post("/circle/reserve", function (req, res) {
       verifyVillager,
       verifyNotModerating,
       verifyCircle,
-      makeModerator
+      makeModerator,
+      retrieveUpdatedCircle
     ], function (err, circle) {
       res.status(200).json(circle);
     });
@@ -317,6 +318,18 @@ app.post("/circle/reserve", function (req, res) {
         handleError(res, "", e, 400);
       }
     }
+  };
+  
+  var retrieveUpdatedCircle = function (circle, callback) {
+    db.collection("circle").findOne({_id: new ObjectId(circle._id)}, function (err, iCircle) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ONE);
+      } else if (iCircle) {
+        callback(null, iCircle);
+      } else {
+        handleError(res, "", ERRORS.CIRCLE.NO, 400);
+      }
+    });
   };
       
   beginAsync();
