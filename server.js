@@ -100,10 +100,6 @@ app.get("/test", function (req, res) {
   deceptaconTests.foo(res, db);
 });
 
-app.get("/data", function (req, res) {
-  deceptaconMobileData.createTestData(res, db);
-});
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 // VILLAGER //
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -201,13 +197,45 @@ app.get("/villager/:id", function (req, res) {
 
 // GET ALL CIRCLES
 app.get("/circle", function (req, res) {
-  db.collection("circle").find({}).sort({name: 1}).toArray(function (err, circles) {
-    if (err) {
-      handleError(res, err.message, ERRORS.CIRCLE.ALL);
-    } else {
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      getCircles,
+      getGames
+    ], function (err, circles) {
       res.status(200).json(circles);
+    });
+  };
+  
+  var getCircles = function (callback) {
+    db.collection("circle").find({}).sort({name: 1}).toArray(function (err, circles) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ALL);
+      } else {
+        callback(null, circles);
+      }
+    });
+  };
+  
+  var getGames = function (circles, callback) {
+    for (var i = 0; i < circles.length; i++) {
+      if (circles[i].game) {
+        db.collection("game").find({id: new ObjectId(circles[i].game)}, function (err, game) {
+          if (err) {
+            handleError(res, err.message, ERRORS.CIRCLE.ALL);
+          } else {
+            circles[i].game = game;
+          }
+        });
+      }
     }
-  });
+    callback(null, circles);
+  };
+  
+  beginAsync();
 });
 
 // RESERVE A CIRCLE

@@ -36,7 +36,7 @@ module.exports = {
         getGames,
         getGame,
         joinGame,
-        removeVillager,
+        //removeVillager,
         beginGame,
         endGame
         //cancelGame
