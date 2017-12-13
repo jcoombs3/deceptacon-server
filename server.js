@@ -258,8 +258,8 @@ app.post("/circle/reserve", function (req, res) {
       verifyNotModerating,
       verifyCircle,
       makeModerator
-    ], function (err, result) {
-      res.status(200).json({});
+    ], function (err, circle) {
+      res.status(200).json(circle);
     });
   };
   
@@ -302,14 +302,18 @@ app.post("/circle/reserve", function (req, res) {
       handleError(res, 'err.message', ERRORS.MODERATE.MODERATOR_FOUND);
     } else {
       try {
-        let iTry = db.collection("circle").findOneAndUpdate(
+        db.collection("circle").findOneAndUpdate(
           {_id: new ObjectId(circleId)},
-          {$set: {"moderator": new ObjectId(villagerId)}},
-          {maxTimeMS: 5}
-        );  
-        callback();
-      }
-      catch(e){
+          {$set: {moderator: new ObjectId(villagerId)}},
+          {upsert: true, returnNewDocument: true}, 
+          function(err, doc) {
+            if (err) { throw err; }
+            else { 
+              callback(null, doc.value);
+            }
+          }
+        );
+      } catch (e){
         handleError(res, "", e, 400);
       }
     }
