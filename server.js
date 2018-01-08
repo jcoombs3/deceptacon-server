@@ -134,6 +134,20 @@ app.post("/register/villager", function (req, res) {
   });
 });
 
+// LOGIN VILLAGER
+app.post("/login", function (req, res) {
+  db.collection("villager").findOne({username: req.body.username, pin: req.body.pin}, {pin: 0}, function (err, villager) {
+    if (err) {
+      handleError(res, err.message, ERRORS.VILLAGER.ONE);
+    } else if (villager) {
+      res.status(200).json(villager);
+      callback(null, villager);
+    } else {
+      handleError(res, "", ERRORS.VILLAGER.NO, 400);
+    }
+  });
+});
+
 // GET ALL VILLAGERS
 app.get("/villager", function (req, res) {
   db.collection("villager").find({}, {_id: 1, fullname: 1}).sort({lastname: 1}).toArray(function (err, villagers) {
