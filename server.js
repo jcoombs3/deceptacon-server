@@ -146,7 +146,6 @@ app.post("/login", function (req, res) {
       handleError(res, err.message, ERRORS.VILLAGER.ONE);
     } else if (villager) {
       res.status(200).json(villager);
-      callback(null, villager);
     } else {
       handleError(res, "", ERRORS.VILLAGER.NO, 400);
     }
