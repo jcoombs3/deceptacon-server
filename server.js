@@ -236,14 +236,14 @@ app.post("/save/villager", function (req, res) {
         callback(null);
       },
       verifyVillager,
-      saveVillager
-    ], function (err, circle) {
-      res.status(200).json({updated: true});
+      saveVillager,
+      retrieveUpdatedVillager,
+    ], function (err, villager) {
+      res.status(200).json(villager);
     });
   };
   
   var verifyVillager = function (callback) {
-    console.log('verifyVillager');
     db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ONE);
@@ -271,6 +271,18 @@ app.post("/save/villager", function (req, res) {
     } catch (e){
       print(e);
     }
+  };
+  
+  var retrieveUpdatedVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback(null, iVillager);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
   };
   
   beginAsync();
