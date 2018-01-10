@@ -92,6 +92,11 @@ var ERRORS = {
     NO_GAME_OBJECT: "No game params",
     MODERATOR_FOUND: "another villager is moderating this circle",
     ALREADY_MODERATING: "this villager is already moderating another room"
+  },
+  SAVE: {
+    NO_VILLAGER_ID: "No villager id",
+    NO_FIRSTNAME: "No firstname",
+    NO_LASTNAME: "No lastnme"
   }
 };
 
@@ -207,6 +212,69 @@ app.get("/villager/:id", function (req, res) {
   };
   
   beginAsync();
+});
+
+// SAVE VILLAGER
+app.post("/save/villager", function (req, res) {
+  const villagerId = req.body._id;
+  const firstname = req.body.firstname;
+  const lastname = req.body.lastname;
+  
+  if (!villagerId) {
+    handleError(res, "", ERRORS.SAVE.NO_VILLAGER_ID, 400);
+  } else if (!firstname) {
+    handleError(res, "", ERRORS.SAVE.NO_FIRSTNAME, 400);      
+  } else if (!lastname) {
+    handleError(res, "", ERRORS.SAVE.NO_LASTNAME, 400);      
+  }
+  
+  const fullname = firstname + " " + lastname;
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyVillager,
+      saveVillager
+    ], function (err, circle) {
+      res.status(200).json();
+    });
+  };
+  
+  var verifyVillager = function (callback) {
+    console.log('verifyVillager');
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var saveVillager = function (callback) {
+    try {
+      db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {firstname: firstname, lastname: lastname, fullname: fullname}},
+        {upsert: true, returnNewDocument: true}, 
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback();
+          }
+        }
+      );
+    } catch (e){
+      print(e);
+    }
+  };
+  
+  beginAsync();
+    
 });
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
