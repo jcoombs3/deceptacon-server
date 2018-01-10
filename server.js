@@ -96,7 +96,9 @@ var ERRORS = {
   SAVE: {
     NO_VILLAGER_ID: "No villager id",
     NO_FIRSTNAME: "No firstname",
-    NO_LASTNAME: "No lastnme"
+    NO_LASTNAME: "No lastnme",
+    NO_PICTURE: "No picture",
+    NO_COLOR: "No color"
   }
 };
 
@@ -219,6 +221,8 @@ app.post("/save/villager", function (req, res) {
   const villagerId = req.body._id;
   const firstname = req.body.firstname;
   const lastname = req.body.lastname;
+  const picture = req.body.picture;
+  const color = req.body.color;
   
   if (!villagerId) {
     handleError(res, "", ERRORS.SAVE.NO_VILLAGER_ID, 400);
@@ -226,6 +230,10 @@ app.post("/save/villager", function (req, res) {
     handleError(res, "", ERRORS.SAVE.NO_FIRSTNAME, 400);      
   } else if (!lastname) {
     handleError(res, "", ERRORS.SAVE.NO_LASTNAME, 400);      
+  } else if (!picture) {
+    handleError(res, "", ERRORS.SAVE.NO_PICTURE, 400);      
+  } else if (!color) {
+    handleError(res, "", ERRORS.SAVE.NO_COLOR, 400);      
   }
   
   const fullname = firstname + " " + lastname;
@@ -259,7 +267,7 @@ app.post("/save/villager", function (req, res) {
     try {
       db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(villagerId)},
-        {$set: {firstname: firstname, lastname: lastname, fullname: fullname}},
+        {$set: {firstname: firstname, lastname: lastname, fullname: fullname, picture: picture, color: color}},
         {upsert: true, returnNewDocument: true}, 
         function(err, doc) {
           if (err) { throw err; }
