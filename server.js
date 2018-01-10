@@ -128,7 +128,9 @@ app.post("/register/villager", function (req, res) {
     firstname: iFirstName,
     lastname: iLastName,
     fullname: iFullName,
-    pin: req.body.pin
+    pin: req.body.pin,
+    picture: req.body.picture,
+    color: req.body.color
   };
   
   db.collection("villager").findOne({username: villager.username}, function (err, iVillager) {

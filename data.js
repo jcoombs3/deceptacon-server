@@ -13,7 +13,7 @@ var VILLAGERS = [
     fullname: "Villager A",
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
-    color: "red"
+    color: "tan"
   },
   {
     firstname: "Villager",
@@ -22,7 +22,7 @@ var VILLAGERS = [
     fullname: "Villager B",
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
-    color: "red"
+    color: "blue"
   },
   {
     firstname: "Villager",
@@ -40,7 +40,7 @@ var VILLAGERS = [
     fullname: "Villager D",
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
-    color: "red"
+    color: "yellow"
   },
   {
     firstname: "Villager",
@@ -49,7 +49,7 @@ var VILLAGERS = [
     fullname: "Villager E",
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
-    color: "red"
+    color: "black"
   },
   {
     firstname: "Villager",
@@ -58,7 +58,7 @@ var VILLAGERS = [
     fullname: "Villager F",
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
-    color: "red"
+    color: "green"
   },
   {
     firstname: "Villager",
@@ -67,7 +67,7 @@ var VILLAGERS = [
     fullname: "Villager G",
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
-    color: "red"
+    color: "purple"
   }
 ];
 
