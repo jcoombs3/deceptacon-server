@@ -238,7 +238,7 @@ app.post("/save/villager", function (req, res) {
       verifyVillager,
       saveVillager
     ], function (err, circle) {
-      res.status(200).json();
+      res.status(200).json({updated: true});
     });
   };
   
