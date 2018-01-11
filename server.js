@@ -337,7 +337,6 @@ app.get("/circle", function (req, res) {
         if (err) {
           handleError(res, err.message, ERRORS.VILLAGER.ONE);
         } else if (villager) {
-          console.log(villager);
           circles[idx].moderator = villager;
         }
         counter++;
@@ -359,6 +358,8 @@ app.get("/circle", function (req, res) {
           console.log(game);
           circles[idx].game = game;
         }
+        console.log(game);
+        
         counter++;
         if (counter >= circles.length) {
           callback(null, circles);
@@ -552,7 +553,7 @@ app.post("/register/game", function (req, res) {
     try {
       let iTry = db.collection("circle").findOneAndUpdate(
         {_id: new ObjectId(circleId)},
-        {$set: {"game": new ObjectId(game._id)}},
+        {$set: {"game": game._id}},
         {maxTimeMS: 5}
       );
       callback();
@@ -706,7 +707,7 @@ app.post("/game/join", function (req, res) {
     try {
       let iTry = db.collection("game").findOneAndUpdate(
         {_id: new ObjectId(gameId)},
-        {$addToSet: {"villagers": new ObjectId(villagerId)}},
+        {$addToSet: {"villagers": villagerId}},
         {maxTimeMS: 5}
       );  
     }

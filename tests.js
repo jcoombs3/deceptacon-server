@@ -33,12 +33,12 @@ module.exports = {
         reserveCircle,
         reserveAnotherCircle,
         registerGame,
-        getGames,
-        getGame,
-        joinGame,
-        //removeVillager,
-        beginGame,
-        endGame
+//        getGames,
+//        getGame,
+//        joinGame,
+//        //removeVillager,
+//        beginGame,
+//        endGame
         //cancelGame
       ], function (err, result) {
         module.exports.debug = false;
