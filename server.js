@@ -628,7 +628,11 @@ app.get("/game/:id", function (req, res) {
   };
   
   var getVillagers = function (game, callback) {
-    db.collection("villager").find({_id: {$in: game.villagers}}, {pin:0}).toArray(function(err, villagers) {
+    let arr = [];
+    for (var i = 0; i < game.villagers.length; i++) {
+      arr.push(new ObjectId(game.villagers[i]));
+    }
+    db.collection("villager").find({_id: {$in: arr}}, {pin:0}).toArray(function(err, villagers) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ALL);
       } else if (villagers) {
