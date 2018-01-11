@@ -355,11 +355,8 @@ app.get("/circle", function (req, res) {
         if (err) {
           handleError(res, err.message, ERRORS.GAME.ONE);
         } else if (game) {
-          console.log(game);
           circles[idx].game = game;
         }
-        console.log(game);
-        
         counter++;
         if (counter >= circles.length) {
           callback(null, circles);
@@ -540,11 +537,11 @@ app.post("/register/game", function (req, res) {
   };
   
   var createGame = function (circle, callback) {
-    db.collection("game").insertOne(gameObj, function (err, game) {
+    db.collection("game").insertOne(gameObj, function (err, doc) {
       if (err) {
         handleError(res, err.message, ERRORS.REGISTRATION.GAME);
       } else {
-        callback(null, game);
+        callback(null, doc.ops[0]);
       }
     });
   };
@@ -553,7 +550,7 @@ app.post("/register/game", function (req, res) {
     try {
       let iTry = db.collection("circle").findOneAndUpdate(
         {_id: new ObjectId(circleId)},
-        {$set: {"game": game._id}},
+        {$set: {"game": new ObjectId(game._id)}},
         {maxTimeMS: 5}
       );
       callback();
