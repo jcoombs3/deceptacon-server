@@ -1,8 +1,24 @@
 var CIRCLES = [
-  {name: "Circle-A"},
-  {name: "Circle-B"},
-  {name: "Circle-C"},
-  {name: "Circle-D"},
+  {
+    name: "Circle-A",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Circle-B",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Circle-C",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Circle-D",
+    moderator: null,
+    game: null
+  }
 ];
 
 var VILLAGERS = [

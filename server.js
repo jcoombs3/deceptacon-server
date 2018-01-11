@@ -312,7 +312,7 @@ app.get("/circle", function (req, res) {
         callback(null);
       },
       getCircles,
-      getModerator,
+      getModerators,
       getGames
     ], function (err, circles) {
       res.status(200).json(circles);
@@ -329,34 +329,42 @@ app.get("/circle", function (req, res) {
     });
   };
   
-  var getModerator = function (circles, callback) {
+  var getModerators = function (circles, callback) {
+    let counter = 0;
     for (var i = 0; i < circles.length; i++) {
-      if (circles[i].moderator) {
-        db.collection("villager").find({id: new ObjectId(circles[i].moderator)}, {_id: 1, fullname: 1, picture: 1, color: 1}, function (err, moderator) {
-          if (err) {
-            handleError(res, err.message, ERRORS.CIRCLE.ALL);
-          } else {
-            circles[i].moderator = moderator;
-          }
-        });
-      }
+      let idx = i;
+      db.collection("villager").findOne({_id: new ObjectId(circles[idx].moderator)}, function (err, villager) {
+        if (err) {
+          handleError(res, err.message, ERRORS.VILLAGER.ONE);
+        } else if (villager) {
+          console.log(villager);
+          circles[idx].moderator = villager;
+        }
+        counter++;
+        if (counter >= circles.length) {
+          callback(null, circles);
+        }
+      });
     }
-    callback(null, circles);
   };
   
   var getGames = function (circles, callback) {
+    let counter = 0;
     for (var i = 0; i < circles.length; i++) {
-      if (circles[i].game) {
-        db.collection("game").find({id: new ObjectId(circles[i].game)}, function (err, game) {
-          if (err) {
-            handleError(res, err.message, ERRORS.CIRCLE.ALL);
-          } else {
-            circles[i].game = game;
-          }
-        });
-      }
+      let idx = i;
+      db.collection("game").findOne({_id: new ObjectId(circles[idx].game)}, function (err, game) {
+        if (err) {
+          handleError(res, err.message, ERRORS.GAME.ONE);
+        } else if (game) {
+          console.log(game);
+          circles[idx].game = game;
+        }
+        counter++;
+        if (counter >= circles.length) {
+          callback(null, circles);
+        }
+      });
     }
-    callback(null, circles);
   };
   
   beginAsync();
