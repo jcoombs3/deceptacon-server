@@ -312,6 +312,7 @@ app.get("/circle", function (req, res) {
         callback(null);
       },
       getCircles,
+      getModerator,
       getGames
     ], function (err, circles) {
       res.status(200).json(circles);
@@ -326,6 +327,21 @@ app.get("/circle", function (req, res) {
         callback(null, circles);
       }
     });
+  };
+  
+  var getModerator = function (circles, callback) {
+    for (var i = 0; i < circles.length; i++) {
+      if (circles[i].moderator) {
+        db.collection("villager").find({id: new ObjectId(circles[i].moderator)}, {_id: 1, fullname: 1, picture: 1, color: 1}, function (err, moderator) {
+          if (err) {
+            handleError(res, err.message, ERRORS.CIRCLE.ALL);
+          } else {
+            circles[i].moderator = moderator;
+          }
+        });
+      }
+    }
+    callback(null, circles);
   };
   
   var getGames = function (circles, callback) {
