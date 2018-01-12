@@ -553,7 +553,7 @@ app.post("/register/game", function (req, res) {
         {$set: {"game": new ObjectId(game._id)}},
         {maxTimeMS: 5}
       );
-      callback(null game);
+      callback(null, game);
     }
     catch(e){
       handleError(res, "", e, 400);
