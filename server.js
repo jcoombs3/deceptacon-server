@@ -718,7 +718,7 @@ app.post("/game/join", function (req, res) {
     if (game.villagers.length < game.seats) {
       callback();
     } else {
-      handleError(res, err.message, ERRORS.GAME.GAME_FULL);
+      handleError(res, "", ERRORS.GAME.GAME_FULL);
     }
   };
   
