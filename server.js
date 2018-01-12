@@ -497,6 +497,7 @@ app.post("/register/game", function (req, res) {
       verifyHasNoGame,
       createGame,
       addGameToCircle,
+      setVillagerBusy,
       getUpdatedCircle
     ], function (err, result) {
       res.status(200).json({});
@@ -508,7 +509,7 @@ app.post("/register/game", function (req, res) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ONE);
       } else if (iVillager) {
-        callback();
+        callback(null);
       } else {
         handleError(res, "", ERRORS.VILLAGER.NO, 400);
       }
@@ -551,6 +552,20 @@ app.post("/register/game", function (req, res) {
       let iTry = db.collection("circle").findOneAndUpdate(
         {_id: new ObjectId(circleId)},
         {$set: {"game": new ObjectId(game._id)}},
+        {maxTimeMS: 5}
+      );
+      callback(null, game);
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+  };
+  
+  var setVillagerBusy = function (game, callback) {
+    try {
+      let iTry = db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {"busy": true}},
         {maxTimeMS: 5}
       );
       callback(null, game);
@@ -667,7 +682,9 @@ app.post("/game/join", function (req, res) {
       verifyVillager,
       verifyGame,
       verifySeatAvailable,
-      reserveSeat
+      reserveSeat,
+      setVillagerBusy,
+      getUpdatedGame
     ], function (err, result) {
       res.status(200).json({});
     });
@@ -717,16 +734,34 @@ app.post("/game/join", function (req, res) {
       handleError(res, "", e, 400);
     }
     setTimeout(function() {
-      db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, game) {
-        if (err) {
-          handleError(res, err.message, ERRORS.GAME.ONE);
-        } else if (game) {
-          res.status(200).json(game);
-        } else {
-          handleError(res, "", ERRORS.GAME.NO, 400);
-        }
-      });
+      callback();
     }, 10);
+  };
+  
+  var setVillagerBusy = function (game, callback) {
+    try {
+      let iTry = db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {"busy": true}},
+        {maxTimeMS: 5}
+      );
+      callback(null, game);
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+  };
+  
+  var getUpdatedGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, game) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (circle) {
+        res.status(200).json(game);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
   };
 
   beginAsync();
