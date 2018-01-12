@@ -750,7 +750,6 @@ app.post("/game/join", function (req, res) {
     catch(e){
       handleError(res, "", e, 400);
     }
-    callback();
   };
   
   var getUpdatedGame = function (callback) {
