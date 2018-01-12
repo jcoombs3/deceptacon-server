@@ -750,13 +750,14 @@ app.post("/game/join", function (req, res) {
     catch(e){
       handleError(res, "", e, 400);
     }
+    callback();
   };
   
   var getUpdatedGame = function (callback) {
     db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, game) {
       if (err) {
         handleError(res, err.message, ERRORS.GAME.ONE);
-      } else if (circle) {
+      } else if (game) {
         res.status(200).json(game);
       } else {
         handleError(res, "", ERRORS.GAME.NO, 400);
