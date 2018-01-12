@@ -497,7 +497,6 @@ app.post("/register/game", function (req, res) {
       verifyHasNoGame,
       createGame,
       addGameToCircle,
-      setVillagerBusy,
       getUpdatedCircle
     ], function (err, result) {
       res.status(200).json({});
@@ -552,20 +551,6 @@ app.post("/register/game", function (req, res) {
       let iTry = db.collection("circle").findOneAndUpdate(
         {_id: new ObjectId(circleId)},
         {$set: {"game": new ObjectId(game._id)}},
-        {maxTimeMS: 5}
-      );
-      callback(null, game);
-    }
-    catch(e){
-      handleError(res, "", e, 400);
-    }
-  };
-  
-  var setVillagerBusy = function (game, callback) {
-    try {
-      let iTry = db.collection("villager").findOneAndUpdate(
-        {_id: new ObjectId(villagerId)},
-        {$set: {"busy": true}},
         {maxTimeMS: 5}
       );
       callback(null, game);
@@ -683,7 +668,6 @@ app.post("/game/join", function (req, res) {
       verifyGame,
       verifySeatAvailable,
       reserveSeat,
-      setVillagerBusy,
       getUpdatedGame
     ], function (err, result) {
       res.status(200).json({});
@@ -736,20 +720,6 @@ app.post("/game/join", function (req, res) {
     setTimeout(function() {
       callback();
     }, 10);
-  };
-  
-  var setVillagerBusy = function (callback) {
-    try {
-      let iTry = db.collection("villager").findOneAndUpdate(
-        {_id: new ObjectId(villagerId)},
-        {$set: {"busy": true}},
-        {maxTimeMS: 5}
-      );
-      callback();
-    }
-    catch(e){
-      handleError(res, "", e, 400);
-    }
   };
   
   var getUpdatedGame = function (callback) {
