@@ -738,14 +738,14 @@ app.post("/game/join", function (req, res) {
     }, 10);
   };
   
-  var setVillagerBusy = function (game, callback) {
+  var setVillagerBusy = function (callback) {
     try {
       let iTry = db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(villagerId)},
         {$set: {"busy": true}},
         {maxTimeMS: 5}
       );
-      callback(null, game);
+      callback();
     }
     catch(e){
       handleError(res, "", e, 400);
