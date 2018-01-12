@@ -497,6 +497,7 @@ app.post("/register/game", function (req, res) {
       verifyHasNoGame,
       createGame,
       addGameToCircle,
+      setCurrentGame,
       getUpdatedCircle
     ], function (err, result) {
       res.status(200).json({});
@@ -551,6 +552,20 @@ app.post("/register/game", function (req, res) {
       let iTry = db.collection("circle").findOneAndUpdate(
         {_id: new ObjectId(circleId)},
         {$set: {"game": new ObjectId(game._id)}},
+        {maxTimeMS: 5}
+      );
+      callback(null, game);
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+  };
+  
+  var setCurrentGame = function (game, callback) {
+    try {
+      let iTry = db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {"currentGame": game}},
         {maxTimeMS: 5}
       );
       callback(null, game);
