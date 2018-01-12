@@ -553,18 +553,19 @@ app.post("/register/game", function (req, res) {
         {$set: {"game": new ObjectId(game._id)}},
         {maxTimeMS: 5}
       );
-      callback();
+      callback(null game);
     }
     catch(e){
       handleError(res, "", e, 400);
     }
   };
   
-  var getUpdatedCircle = function (callback) {
+  var getUpdatedCircle = function (game, callback) {
     db.collection("circle").findOne({_id: new ObjectId(circleId)}, function (err, circle) {
       if (err) {
         handleError(res, err.message, ERRORS.CIRCLE.ONE);
       } else if (circle) {
+        circle.game = game;
         res.status(201).json(circle);
       } else {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
