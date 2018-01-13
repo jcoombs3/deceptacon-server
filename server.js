@@ -752,7 +752,7 @@ app.post("/game/join", function (req, res) {
   };
   
   var getUpdatedCircle = function (game, callback) {
-    db.collection("circle").findOne({_id: new ObjectId(circleId)}, function (err, circle) {
+    db.collection("circle").findOne({_id: new ObjectId(game.circle)}, function (err, circle) {
       if (err) {
         handleError(res, err.message, ERRORS.CIRCLE.ONE);
       } else if (circle) {
