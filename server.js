@@ -683,9 +683,11 @@ app.post("/game/join", function (req, res) {
       verifyGame,
       verifySeatAvailable,
       reserveSeat,
-      getUpdatedGame
-    ], function (err, result) {
-      res.status(200).json({});
+      getUpdatedGame,
+      getUpdatedCircle,
+      setCurrentGame
+    ], function (err, circle) {
+      res.status(201).json(circle);
     });
   };
   
@@ -742,11 +744,40 @@ app.post("/game/join", function (req, res) {
       if (err) {
         handleError(res, err.message, ERRORS.GAME.ONE);
       } else if (game) {
-        res.status(200).json(game);
+        callback(null, game);
       } else {
         handleError(res, "", ERRORS.GAME.NO, 400);
       }
     });
+  };
+  
+  var getUpdatedCircle = function (game, callback) {
+    db.collection("circle").findOne({_id: new ObjectId(circleId)}, function (err, circle) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ONE);
+      } else if (circle) {
+        circle.game = game;
+        callback(null, circle);
+      } else {
+        handleError(res, "", ERRORS.CIRCLE.NO, 400);
+      }
+    });
+  };
+  
+  var setCurrentGame = function (circle, callback) {
+    try {
+      let iTry = db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {"currentGame": circle}},
+        {maxTimeMS: 5}
+      );
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+    setTimeout(function() {
+      callback(null, circle);
+    }, 10);
   };
 
   beginAsync();
