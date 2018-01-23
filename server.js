@@ -837,7 +837,7 @@ app.post("/game/remove", function (req, res) {
     db.collection("game").update({
       _id: new ObjectId(gameId)
     }, {
-      $pull: {villagers: {$in: [new ObjectId(villagerId)]}}
+      $pull: {villagers: {$in: [villagerId]}}
     }, function (err, result) {
       if (err) {
         handleError(res, err.message, ERRORS.GAME.ONE);
