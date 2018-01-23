@@ -801,7 +801,9 @@ app.post("/game/remove", function (req, res) {
       },
       verifyVillager,
       verifyGame,
-      removeVillager
+      removeVillager,
+      getUpdatedGame,
+      getUpdatedCircle
     ], function (err, result) {
       res.status(200).json({});
     });
@@ -843,6 +845,31 @@ app.post("/game/remove", function (req, res) {
         callback();
       } else {
         handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getUpdatedGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, game) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (game) {
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getUpdatedCircle = function (game, callback) {
+    db.collection("circle").findOne({_id: new ObjectId(game.circle)}, function (err, circle) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ONE);
+      } else if (circle) {
+        circle.game = game;
+        callback(null, circle);
+      } else {
+        handleError(res, "", ERRORS.CIRCLE.NO, 400);
       }
     });
   };
