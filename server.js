@@ -804,8 +804,8 @@ app.post("/game/remove", function (req, res) {
       removeVillager,
       getUpdatedGame,
       getUpdatedCircle
-    ], function (err, result) {
-      res.status(200).json({});
+    ], function (err, circle) {
+      res.status(200).json(circle);
     });
   };
   
