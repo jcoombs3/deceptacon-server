@@ -200,10 +200,10 @@ app.get("/villager/:id", function (req, res) {
   };
   
   var getCareerHistory = function(villager, callback) {
-    db.collection("game").find({$or: 
-      [{villagers: {$in: [new ObjectId(req.params.id)]}}, 
-       {moderator: new ObjectId(req.params.id)}] 
-      }).toArray(function (err, games) {
+    db.collection("game").find({$or:
+      [{moderator: req.params.id},
+       {villagers: {$in: [req.params.id]}}]
+    }).toArray(function (err, games) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ONE);
       } else if (games) {
