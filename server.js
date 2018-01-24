@@ -478,6 +478,11 @@ app.post("/register/game", function (req, res) {
   gameObj.villagers = [];
   gameObj.timestamp = new Date();
   gameObj.circle = circleId;
+  gameObj.status = {
+    active: false,
+    end: false,
+    cancelled: false
+  };
   
   if (!villagerId) {
     handleError(res, "", ERRORS.MODERATE.NO_VILLAGER_ID, 400);
