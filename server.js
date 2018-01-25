@@ -883,7 +883,7 @@ app.post("/game/placeholder", function (req, res) {
 
 
 // REMOVE VILLAGER FROM A GAME 
-app.post("/game/remove", function (req, res) {
+app.post("/game/remove/villager", function (req, res) {
   const villagerId = req.body.villagerId;
   const gameId = req.body.gameId;
   
@@ -986,6 +986,89 @@ app.post("/game/remove", function (req, res) {
     catch(e){
       handleError(res, "", e, 400);
     }
+  };
+
+  beginAsync();
+});
+
+// REMOVE PLACEHOLDER FROM A GAME
+app.post("/game/remove/placeholder", function (req, res) {
+  const modId = req.body.modId;
+  const gameId = req.body.gameId;
+  
+  if (!modId) {
+    handleError(res, "", ERRORS.GAME.NO_MOD_ID, 400);
+  } else if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);     
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyGame,
+      removePlaceholder,
+      getUpdatedGame,
+      getUpdatedCircle
+    ], function (err, circle) {
+      res.status(200).json(circle);
+    });
+  };
+  
+  var verifyGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var removePlaceholder = function (game, callback) {
+    let iPlaceholders = game.placeholders;
+    iPlaceholders = iPlaceholders.pop();
+    db.collection("game").update({
+      _id: new ObjectId(gameId)
+    }, {
+      $set: {placeholders: iPlaceholders}
+    }, function (err, result) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (result) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getUpdatedGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, game) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (game) {
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getUpdatedCircle = function (game, callback) {
+    db.collection("circle").findOne({_id: new ObjectId(game.circle)}, function (err, circle) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ONE);
+      } else if (circle) {
+        circle.game = game;
+        callback(null, circle);
+      } else {
+        handleError(res, "", ERRORS.CIRCLE.NO, 400);
+      }
+    });
   };
 
   beginAsync();
