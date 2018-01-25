@@ -1030,7 +1030,7 @@ app.post("/game/remove/placeholder", function (req, res) {
   
   var removePlaceholder = function (game, callback) {
     let iPlaceholders = game.placeholders;
-    iPlaceholders = iPlaceholders.pop();
+    iPlaceholders = iPlaceholders.splice(0, 1);
     db.collection("game").update({
       _id: new ObjectId(gameId)
     }, {
