@@ -505,6 +505,7 @@ app.post("/register/game", function (req, res) {
       createGame,
       addGameToCircle,
       getUpdatedCircle,
+      getModerator,
       setCurrentGame
     ], function (err, result) {
       
@@ -579,6 +580,17 @@ app.post("/register/game", function (req, res) {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
       }
     });
+  };
+  
+  var getModerator = function (circle, callback) {
+    db.collection("villager").findOne({_id: new ObjectId(circle.moderator)}, function (err, villager) {
+        if (err) {
+          handleError(res, err.message, ERRORS.VILLAGER.ONE);
+        } else if (villager) {
+          circles.moderator = villager;
+          callback(null, circle);
+        }
+      });
   };
   
   var setCurrentGame = function (circle, callback) {

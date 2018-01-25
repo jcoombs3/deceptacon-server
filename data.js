@@ -1,21 +1,31 @@
 var CIRCLES = [
   {
-    name: "Circle-A",
+    name: "Heisman",
     moderator: null,
     game: null
   },
   {
-    name: "Circle-B",
+    name: "Mitchell",
     moderator: null,
     game: null
   },
   {
-    name: "Circle-C",
+    name: "Turner",
     moderator: null,
     game: null
   },
   {
-    name: "Circle-D",
+    name: "King",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Hicks",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Chandler",
     moderator: null,
     game: null
   }
