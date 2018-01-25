@@ -640,7 +640,7 @@ app.get("/game/:id", function (req, res) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ONE);
       } else if (villager) {
-        game.moderator = villager.fullname;
+        game.moderator = villager;
         callback(null, game);
       } else {
         handleError(res, "", ERRORS.VILLAGER.NO, 400);

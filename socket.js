@@ -15,6 +15,6 @@ io.on('connection', function(socket) {
   
     socket.on('com.deceptacon.event', function (arr) {
       console.log('++ com.deceptacon.event', arr.event);
-      socket.broadcast.emit(arr.event, arr.data);
+      io.sockets.emit(arr.event, arr.data);
     });
 });
