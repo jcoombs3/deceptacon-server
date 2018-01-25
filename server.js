@@ -576,6 +576,7 @@ app.post("/register/game", function (req, res) {
         handleError(res, err.message, ERRORS.CIRCLE.ONE);
       } else if (circle) {
         circle.game = game;
+        circle.game.moderator = villagerData;
         circle.moderator = villagerData;
         callback(null, circle);
       } else {
