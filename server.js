@@ -473,6 +473,7 @@ app.post("/circle/reserve", function (req, res) {
 // REGISTER A GAME WITHIN A CIRCLE
 app.post("/register/game", function (req, res) {
   const villagerId = req.body.villagerId;
+  let villagerData = null;
   const circleId = req.body.circleId;
   const gameObj = req.body.game;
   gameObj.moderator = villagerId;
@@ -505,7 +506,6 @@ app.post("/register/game", function (req, res) {
       createGame,
       addGameToCircle,
       getUpdatedCircle,
-      getModerator,
       setCurrentGame
     ], function (err, result) {
       
@@ -517,6 +517,7 @@ app.post("/register/game", function (req, res) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ONE);
       } else if (iVillager) {
+        villagerData = iVillager;
         callback(null);
       } else {
         handleError(res, "", ERRORS.VILLAGER.NO, 400);
@@ -575,23 +576,12 @@ app.post("/register/game", function (req, res) {
         handleError(res, err.message, ERRORS.CIRCLE.ONE);
       } else if (circle) {
         circle.game = game;
+        circle.moderator = villagerData;
         callback(null, circle);
       } else {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
       }
     });
-  };
-  
-  var getModerator = function (circle, callback) {
-    db.collection("villager").findOne({_id: new ObjectId(circle.moderator)}, 
-      function (err, villager) {
-        if (err) {
-          handleError(res, err.message, ERRORS.VILLAGER.ONE);
-        } else if (villager) {
-          circles.moderator = villager;
-        }
-        callback(null, circle);
-      });
   };
   
   var setCurrentGame = function (circle, callback) {
@@ -777,6 +767,7 @@ app.post("/game/join", function (req, res) {
         handleError(res, err.message, ERRORS.CIRCLE.ONE);
       } else if (circle) {
         circle.game = game;
+        circle.moderator = verifyVillager;
         callback(null, circle);
       } else {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
