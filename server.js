@@ -84,6 +84,7 @@ var ERRORS = {
     NO: "No game found with this id",
     NO_VILLAGER_ID: "No villager id was supplied",
     NO_GAME_ID: "No villager id was supplied",
+    NO_MOD_ID: "No moderator id was supplied",
     GAME_FULL: "Game is full"
   },
   MODERATE: {
@@ -476,6 +477,7 @@ app.post("/register/game", function (req, res) {
   const gameObj = req.body.game;
   gameObj.moderator = villagerId;
   gameObj.villagers = [];
+  gameObj.placeholders = [];
   gameObj.timestamp = new Date();
   gameObj.circle = circleId;
   gameObj.status = {
@@ -721,7 +723,7 @@ app.post("/game/join", function (req, res) {
   };
   
   var verifySeatAvailable = function (game, callback) {
-    if (game.villagers.length < game.seats) {
+    if ((game.villagers.length + game.placeholders.length) < game.seats) {
       callback();
     } else {
       handleError(res, "", ERRORS.GAME.GAME_FULL);
@@ -787,6 +789,98 @@ app.post("/game/join", function (req, res) {
 
   beginAsync();
 });
+
+app.post("/game/placeholder", function (req, res) {
+  const modId = req.body.modId;
+  const gameId = req.body.gameId;
+  
+  if (!modId) {
+    handleError(res, "", ERRORS.GAME.NO_MOD_ID, 400);
+  } else if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);     
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyGame,
+      verifySeatAvailable,
+      reservePlaceholderSeat,
+      getUpdatedGame,
+      getUpdatedCircle
+    ], function (err, circle) {
+      res.status(201).json(circle);
+    });
+  };
+  
+  var verifyGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var verifySeatAvailable = function (game, callback) {
+    if ((game.villagers.length + game.placeholders.length) < game.seats) {
+      callback(null, game);
+    } else {
+      handleError(res, "", ERRORS.GAME.GAME_FULL);
+    }
+  };
+  
+  var reservePlaceholderSeat = function (game, callback) {
+    let iPlaceholders = game.placeholders;
+    iPlaceholders.push({}); 
+    try {
+      let iTry = db.collection("game").findOneAndUpdate(
+        {_id: new ObjectId(gameId)},
+        {$set: {"placeholders": iPlaceholders}},
+        {maxTimeMS: 5}
+      );  
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+    setTimeout(function() {
+      callback();
+    }, 10);
+  };
+  
+  var getUpdatedGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, game) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (game) {
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getUpdatedCircle = function (game, callback) {
+    db.collection("circle").findOne({_id: new ObjectId(game.circle)}, function (err, circle) {
+      if (err) {
+        handleError(res, err.message, ERRORS.CIRCLE.ONE);
+      } else if (circle) {
+        circle.game = game;
+        callback(null, circle);
+      } else {
+        handleError(res, "", ERRORS.CIRCLE.NO, 400);
+      }
+    });
+  };
+
+  beginAsync();
+});
+
 
 // REMOVE VILLAGER FROM A GAME 
 app.post("/game/remove", function (req, res) {
