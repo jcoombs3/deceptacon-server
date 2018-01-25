@@ -808,7 +808,8 @@ app.post("/game/remove", function (req, res) {
       verifyGame,
       removeVillager,
       getUpdatedGame,
-      getUpdatedCircle
+      getUpdatedCircle,
+      removeCurrentGameFromVillager
     ], function (err, circle) {
       res.status(200).json(circle);
     });
@@ -877,6 +878,20 @@ app.post("/game/remove", function (req, res) {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
       }
     });
+  };
+  
+  var removeCurrentGameFromVillager = function (circle, callback) {
+    try {
+      let iTry = db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {"currentGame": null}},
+        {maxTimeMS: 5}
+      );
+      res.status(200).json(circle);
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
   };
 
   beginAsync();
