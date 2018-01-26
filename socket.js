@@ -8,7 +8,9 @@ app.use(express.static("www"));
 // Our Ionic app build is in the www folder 
 // (kept up-to-date by the Ionic CLI using 'ionic serve')
 
-server.listen(4200);
+server.listen(4200, function(){
+  console.log('listening on *:4200');
+});
 
 io.on('connection', function(socket) {  
     console.log('++ a client connected...');
