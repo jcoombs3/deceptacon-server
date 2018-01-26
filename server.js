@@ -473,7 +473,6 @@ app.post("/circle/reserve", function (req, res) {
 // REGISTER A GAME WITHIN A CIRCLE
 app.post("/register/game", function (req, res) {
   const villagerId = req.body.villagerId;
-  let villagerData = null;
   const circleId = req.body.circleId;
   const gameObj = req.body.game;
   gameObj.moderator = villagerId;
@@ -506,7 +505,8 @@ app.post("/register/game", function (req, res) {
       createGame,
       addGameToCircle,
       getUpdatedCircle,
-      setCurrentGame
+      setCurrentGame,
+      getModerator
     ], function (err, result) {
       
     });
@@ -517,7 +517,6 @@ app.post("/register/game", function (req, res) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ONE);
       } else if (iVillager) {
-        villagerData = iVillager;
         callback(null);
       } else {
         handleError(res, "", ERRORS.VILLAGER.NO, 400);
@@ -576,8 +575,6 @@ app.post("/register/game", function (req, res) {
         handleError(res, err.message, ERRORS.CIRCLE.ONE);
       } else if (circle) {
         circle.game = game;
-        circle.game.moderator = villagerData;
-        circle.moderator = villagerData;
         callback(null, circle);
       } else {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
@@ -587,20 +584,31 @@ app.post("/register/game", function (req, res) {
   
   var setCurrentGame = function (circle, callback) {
     try {
-      let iCircle = circle;
-      iCircle.game.moderator = villagerId;
-      iCircle.moderator = villagerId;
       let iTry = db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(villagerId)},
-        {$set: {"currentGame": iCircle}},
+        {$set: {"currentGame": circle}},
         {maxTimeMS: 5}
       );
-      res.status(201).json(circle);
+      callback(null, circle);
     }
     catch(e){
       handleError(res, "", e, 400);
     }
   };
+  
+  var getModerator = function (circle, callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        circle.moderator = iVillager;
+        circle.game.moderator = iVillager;
+        res.status(201).json(circle);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  }
       
   beginAsync();
 });
