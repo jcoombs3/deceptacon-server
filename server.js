@@ -83,7 +83,7 @@ var ERRORS = {
     ONE: "Failed to get this game",
     NO: "No game found with this id",
     NO_VILLAGER_ID: "No villager id was supplied",
-    NO_GAME_ID: "No villager id was supplied",
+    NO_GAME_ID: "No game id was supplied",
     NO_MOD_ID: "No moderator id was supplied",
     GAME_FULL: "Game is full"
   },
@@ -1172,6 +1172,7 @@ app.post("/game/end", function (req, res) {
   };
   
   var endGame = function (callback) {
+    console.log('// endGame');
     try {
       db.collection("game").findOneAndUpdate(
         {_id: new ObjectId(gameId)},
@@ -1194,6 +1195,7 @@ app.post("/game/end", function (req, res) {
   };
   
   var makeCircleAvailable = function (game, callback) {
+    console.log('// makeCircleAvailable');
     try {
       db.collection("circle").findOneAndUpdate(
         {_id: new ObjectId(game.circle)},
@@ -1207,11 +1209,12 @@ app.post("/game/end", function (req, res) {
         }
       );
     } catch (e){
-      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+      handleError(res, "", "ERROR making Circle available", 400);
     }
   };
   
   var removeCurrentGameFromModerator = function (callback) {
+    console.log('// removeCurrentGameFromModerator');
     try {
       db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(game.moderator)},
@@ -1225,11 +1228,12 @@ app.post("/game/end", function (req, res) {
         }
       );
     } catch (e){
-      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+      handleError(res, "", "ERROR with game.moderator", 400);
     }
   };
   
   var retrieveUpdatedGame = function (callback) {
+    console.log('// retrieveUpdatedGame');
     db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
       if (err) {
         handleError(res, err.message, ERRORS.GAME.ONE);
