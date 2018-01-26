@@ -480,7 +480,7 @@ app.post("/register/game", function (req, res) {
   gameObj.placeholders = [];
   gameObj.timestamp = new Date();
   gameObj.circle = circleId;
-  gameObj.userDetails = {};
+  gameObj.userDetails = [];
   gameObj.status = {
     active: false,
     end: false,
@@ -1375,12 +1375,11 @@ app.post("/game/publish", function (req, res) {
   };
   
   var updateVillagerDetails = function (game, callback) {
-    let iUserDetails = game.userDetails;
-    iUserDetails[villagerId] = detailObj;
+    game.userDetails.push(detailObj);
     try {
       db.collection("game").findOneAndUpdate(
         {_id: new ObjectId(gameId)},
-        {$set: {userDetails: iUserDetails}},
+        {$set: {userDetails: game.userDetails}},
         function(err, doc) {
           if (err) { throw err; }
           else { 
