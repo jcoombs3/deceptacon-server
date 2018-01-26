@@ -1172,7 +1172,6 @@ app.post("/game/end", function (req, res) {
   };
   
   var endGame = function (callback) {
-    console.log('// endGame');
     try {
       db.collection("game").findOneAndUpdate(
         {_id: new ObjectId(gameId)},
@@ -1195,7 +1194,6 @@ app.post("/game/end", function (req, res) {
   };
   
   var makeCircleAvailable = function (game, callback) {
-    console.log('// makeCircleAvailable');
     try {
       db.collection("circle").findOneAndUpdate(
         {_id: new ObjectId(game.circle)},
@@ -1214,26 +1212,20 @@ app.post("/game/end", function (req, res) {
   };
   
   var removeCurrentGameFromModerator = function (callback) {
-    console.log('// removeCurrentGameFromModerator');
     try {
-      db.collection("villager").findOneAndUpdate(
+      let iTry = db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(game.moderator)},
         {$set: {"currentGame": null}},
-        {upsert: true, returnNewDocument: true}, 
-        function(err, doc) {
-          if (err) { throw err; }
-          else { 
-            callback();
-          }
-        }
+        {maxTimeMS: 5}
       );
-    } catch (e){
-      handleError(res, "", "ERROR with game.moderator", 400);
+      callback();
+    }
+    catch(e){
+      handleError(res, "", e, 400);
     }
   };
   
   var retrieveUpdatedGame = function (callback) {
-    console.log('// retrieveUpdatedGame');
     db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
       if (err) {
         handleError(res, err.message, ERRORS.GAME.ONE);
