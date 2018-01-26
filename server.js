@@ -480,6 +480,7 @@ app.post("/register/game", function (req, res) {
   gameObj.placeholders = [];
   gameObj.timestamp = new Date();
   gameObj.circle = circleId;
+  gameObj.userDetails = {};
   gameObj.status = {
     active: false,
     end: false,
@@ -1322,6 +1323,75 @@ app.post("/game/cancel", function (req, res) {
         handleError(res, "", ERRORS.GAME.NO, 400);
       }
     });
+  };
+  
+  beginAsync();
+});
+
+// PUBLISH ROLE & ALIGNMENT
+app.post("/game/publish", function (req, res) {
+  const gameId = req.body.gameId;
+  const villagerId = req.body.villagerId;
+  const iAlignment = req.body.alignment;
+  const iRole = req.body.role;
+  const detailObj = {
+    alignment: iAlignment,
+    role: iRole
+  };
+  
+  if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+  } else if (!villagerId) {
+    handleError(res, "", ERRORS.GAME.NO_VILLAGER_ID, 400);
+  } else if (!iAlignment) {
+    handleError(res, "", "No alignment added", 400);
+  } else if (!iRole) {
+    handleError(res, "", "No role added", 400);
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyVillager,
+      verifyGame,
+      updateVillagerDetails
+    ], function (err, game) {
+      res.status(200).json(game);
+    });
+  };
+  
+  var verifyVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var updateVillagerDetails = function (game, callback) {
+    let iUserDetails = game.userDetails;
+    iUserDetails[villagerId] = detailObj;
+    try {
+      db.collection("game").findOneAndUpdate(
+        {_id: new ObjectId(gameId)},
+        {$set: {userDetails: iUserDetails}},
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback();
+          }
+        }
+      );
+      // {upsert: true, returnNewDocument: true}, 
+    } catch (e){
+      handleError(res, "", "Error adding userDetails", 400);
+    }
   };
   
   beginAsync();
