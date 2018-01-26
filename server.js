@@ -505,8 +505,8 @@ app.post("/register/game", function (req, res) {
       verifyHasNoGame,
       createGame,
       addGameToCircle,
-      getUpdatedCircle,
-      setCurrentGame
+      setCurrentGame,
+      getUpdatedCircle
     ], function (err, result) {
       
     });
@@ -570,6 +570,20 @@ app.post("/register/game", function (req, res) {
     }
   };
   
+  var setCurrentGame = function (circle, callback) {
+    try {
+      let iTry = db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {"currentGame": circle}},
+        {maxTimeMS: 5}
+      );
+      callback(null circle);
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+  };
+  
   var getUpdatedCircle = function (game, callback) {
     db.collection("circle").findOne({_id: new ObjectId(circleId)}, function (err, circle) {
       if (err) {
@@ -578,25 +592,11 @@ app.post("/register/game", function (req, res) {
         circle.game = game;
         circle.game.moderator = villagerData;
         circle.moderator = villagerData;
-        callback(null, circle);
+        res.status(201).json(circle);
       } else {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
       }
     });
-  };
-  
-  var setCurrentGame = function (circle, callback) {
-    try {
-      let iTry = db.collection("villager").findOneAndUpdate(
-        {_id: new ObjectId(villagerId)},
-        {$set: {"currentGame": circle}},
-        {maxTimeMS: 5}
-      );
-      res.status(201).json(circle);
-    }
-    catch(e){
-      handleError(res, "", e, 400);
-    }
   };
       
   beginAsync();
