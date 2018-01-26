@@ -1356,9 +1356,10 @@ app.post("/game/publish", function (req, res) {
       },
       verifyVillager,
       verifyGame,
-      updateVillagerDetails
-    ], function (err, game) {
-      res.status(200).json(game);
+      updateVillagerDetails,
+      removeCurrentGameFromVillager
+    ], function (err, result) {
+      res.status(200).json(result);
     });
   };
   
@@ -1391,6 +1392,20 @@ app.post("/game/publish", function (req, res) {
       // {upsert: true, returnNewDocument: true}, 
     } catch (e){
       handleError(res, "", "Error adding userDetails", 400);
+    }
+  };
+  
+  var removeCurrentGameFromVillager = function (callback) {
+    try {
+      let iTry = db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {"currentGame": null}},
+        {maxTimeMS: 5}
+      );
+      callback();
+    }
+    catch(e){
+      handleError(res, "", e, 400);
     }
   };
   
