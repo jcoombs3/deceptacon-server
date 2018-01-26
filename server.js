@@ -151,15 +151,51 @@ app.post("/register/villager", function (req, res) {
 
 // LOGIN VILLAGER
 app.post("/login", function (req, res) {
-  db.collection("villager").findOne({username: req.body.username, pin: req.body.pin}, {pin: 0}, function (err, villager) {
-    if (err) {
-      handleError(res, err.message, ERRORS.VILLAGER.ONE);
-    } else if (villager) {
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      getVillager,
+      getCurrentGame
+    ], function (err, villager) {
       res.status(200).json(villager);
+    });
+  };
+  
+  var getVillager = function(callback) {
+    db.collection("villager").findOne({username: req.body.username, pin: req.body.pin}, {pin: 0}, function (err, villager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (villager) {
+        callback(null, villager);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var getCurrentGame = function(villager, callback) {
+    if (villager.currentGame) {
+      db.collection("game").findOne(
+        {_id: new ObjectId(villager.currentGame.game._id)}, 
+        function (err, game) {
+          if (err) {
+            handleError(res, err.message, ERRORS.VILLAGER.ONE);
+          } else if (game) {
+            villager.currentGame = game;
+            callback(null, villager);
+          } else {
+            handleError(res, "", ERRORS.VILLAGER.NO, 400);
+          }
+        });
     } else {
-      handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      callback(null, villager);
     }
-  });
+  };
+  
+  beginAsync();
 });
 
 // GET ALL VILLAGERS
