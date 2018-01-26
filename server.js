@@ -480,7 +480,7 @@ app.post("/register/game", function (req, res) {
   gameObj.placeholders = [];
   gameObj.timestamp = new Date();
   gameObj.circle = circleId;
-  gameObj.userDetails = [];
+  gameObj.userDetails = {};
   gameObj.status = {
     active: false,
     end: false,
@@ -1374,12 +1374,25 @@ app.post("/game/publish", function (req, res) {
     });
   };
   
+  var verifyGame = function (callback) { 
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
   var updateVillagerDetails = function (game, callback) {
-    game.userDetails.push(detailObj);
+    let iUserDetails = game.userDetails;
+    iUserDetails[villagerId] = detailObj;
     try {
       db.collection("game").findOneAndUpdate(
         {_id: new ObjectId(gameId)},
-        {$set: {userDetails: game.userDetails}},
+        {$set: {userDetails: iUserDetails}},
         function(err, doc) {
           if (err) { throw err; }
           else { 
