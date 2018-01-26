@@ -1094,6 +1094,7 @@ app.post("/game/begin", function (req, res) {
       },
       beginGame,
       retrieveUpdatedGame,
+      getModerator
     ], function (err, game) {
       res.status(200).json(game);
     });
@@ -1128,6 +1129,19 @@ app.post("/game/begin", function (req, res) {
         callback(null, iGame);
       } else {
         handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getModerator = function (game, callback) {
+    db.collection("villager").findOne({_id: new ObjectId(game.moderator)}, {pin: 0}, function (err, villager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (villager) {
+        game.moderator = villager;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
       }
     });
   };
