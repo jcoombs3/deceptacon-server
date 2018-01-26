@@ -280,7 +280,7 @@ app.post("/save/villager", function (req, res) {
         }
       );
     } catch (e){
-      print(e);
+      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
     }
   };
   
@@ -1117,7 +1117,7 @@ app.post("/game/begin", function (req, res) {
         }
       });
     } catch (e){
-      print(e);
+      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
     }
   };
   
@@ -1189,7 +1189,7 @@ app.post("/game/end", function (req, res) {
         }
       );
     } catch (e){
-      print(e);
+      handleError(res, "", "Generic Error", 400);
     }
   };
   
@@ -1207,7 +1207,7 @@ app.post("/game/end", function (req, res) {
         }
       );
     } catch (e){
-      print(e);
+      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
     }
   };
   
@@ -1225,7 +1225,7 @@ app.post("/game/end", function (req, res) {
         }
       );
     } catch (e){
-      print(e);
+      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
     }
   };
   
@@ -1283,7 +1283,7 @@ app.post("/game/cancel", function (req, res) {
         }
       );
     } catch (e){
-      print(e);
+      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
     }
   };
   
@@ -1301,7 +1301,7 @@ app.post("/game/cancel", function (req, res) {
         }
       );
     } catch (e){
-      print(e);
+      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
     }
   };
   
