@@ -1164,6 +1164,7 @@ app.post("/game/end", function (req, res) {
       },
       endGame,
       makeCircleAvailable,
+      removeCurrentGameFromModerator,
       retrieveUpdatedGame,
     ], function (err, game) {
       res.status(200).json(game);
@@ -1197,6 +1198,24 @@ app.post("/game/end", function (req, res) {
       db.collection("circle").findOneAndUpdate(
         {_id: new ObjectId(game.circle)},
         {$set: {moderator: null, game: null}},
+        {upsert: true, returnNewDocument: true}, 
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback();
+          }
+        }
+      );
+    } catch (e){
+      print(e);
+    }
+  };
+  
+  var removeCurrentGameFromModerator = function (callback) {
+    try {
+      db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(game.moderator)},
+        {$set: {"currentGame": null}},
         {upsert: true, returnNewDocument: true}, 
         function(err, doc) {
           if (err) { throw err; }
