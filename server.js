@@ -1355,7 +1355,6 @@ app.post("/game/publish", function (req, res) {
         callback(null);
       },
       verifyVillager,
-      verifyGame,
       updateVillagerDetails,
       removeCurrentGameFromVillager
     ], function (err, result) {
