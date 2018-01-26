@@ -1414,7 +1414,7 @@ app.post("/game/publish", function (req, res) {
         {$set: {"currentGame": null}},
         {maxTimeMS: 5}
       );
-      callback();
+      callback(null, {success: true});
     }
     catch(e){
       handleError(res, "", e, 400);
