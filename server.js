@@ -184,7 +184,7 @@ app.post("/login", function (req, res) {
           if (err) {
             handleError(res, err.message, ERRORS.VILLAGER.ONE);
           } else if (game) {
-            villager.currentGame = game;
+            villager.currentGame.game = game;
             callback(null, villager);
           } else {
             handleError(res, "", ERRORS.VILLAGER.NO, 400);
