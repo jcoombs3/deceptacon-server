@@ -577,7 +577,7 @@ app.post("/register/game", function (req, res) {
         {$set: {"currentGame": circle}},
         {maxTimeMS: 5}
       );
-      callback(null circle);
+      callback(null, circle);
     }
     catch(e){
       handleError(res, "", e, 400);
