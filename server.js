@@ -591,7 +591,7 @@ app.post("/register/game", function (req, res) {
       iCircle.game.moderator = circle.game.moderator._id;
       let iTry = db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(villagerId)},
-        {$set: {"currentGame": circle}},
+        {$set: {"currentGame": iCircle}},
         {maxTimeMS: 5}
       );
       res.status(201).json(circle);
