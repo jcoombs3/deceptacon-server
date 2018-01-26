@@ -1202,7 +1202,7 @@ app.post("/game/end", function (req, res) {
         function(err, doc) {
           if (err) { throw err; }
           else { 
-            callback();
+            callback(null, game);
           }
         }
       );
@@ -1211,7 +1211,7 @@ app.post("/game/end", function (req, res) {
     }
   };
   
-  var removeCurrentGameFromModerator = function (callback) {
+  var removeCurrentGameFromModerator = function (game, callback) {
     try {
       let iTry = db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(game.moderator)},
