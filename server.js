@@ -588,7 +588,8 @@ app.post("/register/game", function (req, res) {
   var setCurrentGame = function (circle, callback) {
     try {
       let iCircle = circle;
-      iCircle.game.moderator = circle.game.moderator._id;
+      iCircle.game.moderator = villagerId;
+      iCircle.moderator = villagerId;
       let iTry = db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(villagerId)},
         {$set: {"currentGame": iCircle}},
