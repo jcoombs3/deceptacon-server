@@ -1596,7 +1596,7 @@ app.post("/game/publish", function (req, res) {
 });
 
 // PUBLISH WINNER
-app.post("/game/publish", function (req, res) {
+app.post("/game/winner", function (req, res) {
   const gameId = req.body.gameId;
   const villagerId = req.body.villagerId;
   const iWinner = req.body.winner;
