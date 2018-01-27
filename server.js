@@ -1305,6 +1305,7 @@ app.post("/game/begin", function (req, res) {
         handleError(res, err.message, ERRORS.VILLAGER.ALL);
       } else if (villagers) {
         game.villagers = villagers;
+        callback(null, game);
       } else {
         handleError(res, "", ERRORS.VILLAGER.ALL, 400);
       }
@@ -1427,6 +1428,7 @@ app.post("/game/end", function (req, res) {
         handleError(res, err.message, ERRORS.VILLAGER.ALL);
       } else if (villagers) {
         game.villagers = villagers;
+        callback(null, game);
       } else {
         handleError(res, "", ERRORS.VILLAGER.ALL, 400);
       }
