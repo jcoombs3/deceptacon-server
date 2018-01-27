@@ -819,7 +819,7 @@ app.post("/game/join", function (req, res) {
         handleError(res, err.message, ERRORS.CIRCLE.ONE);
       } else if (circle) {
         circle.game = game;
-        circle.moderator = verifyVillager;
+        circle.moderator = game.moderator;
         callback(null, circle);
       } else {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
