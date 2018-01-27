@@ -1330,7 +1330,6 @@ app.post("/game/end", function (req, res) {
       },
       endGame,
       makeCircleAvailable,
-      removeCurrentGameFromModerator,
       retrieveUpdatedGame,
       getModerator,
       getVillagers
@@ -1370,26 +1369,12 @@ app.post("/game/end", function (req, res) {
         function(err, doc) {
           if (err) { throw err; }
           else { 
-            callback(null, game);
+            callback(null);
           }
         }
       );
     } catch (e){
       handleError(res, "", "ERROR making Circle available", 400);
-    }
-  };
-  
-  var removeCurrentGameFromModerator = function (game, callback) {
-    try {
-      let iTry = db.collection("villager").findOneAndUpdate(
-        {_id: new ObjectId(game.moderator)},
-        {$set: {"currentGame": null}},
-        {maxTimeMS: 5}
-      );
-      callback();
-    }
-    catch(e){
-      handleError(res, "", e, 400);
     }
   };
   
@@ -1603,6 +1588,95 @@ app.post("/game/publish", function (req, res) {
       callback(null, {success: true});
     }
     catch(e){
+      handleError(res, "", e, 400);
+    }
+  };
+  
+  beginAsync();
+});
+
+// PUBLISH WINNER
+app.post("/game/publish", function (req, res) {
+  const gameId = req.body.gameId;
+  const villagerId = req.body.villagerId;
+  const iWinner = req.body.winner;
+  
+  if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+  } else if (!villagerId) {
+    handleError(res, "", ERRORS.GAME.NO_VILLAGER_ID, 400);
+  } else if (!iWinner) {
+    handleError(res, "", "No winner added", 400);
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyVillager,
+      verifyGame,
+      updateWinnerDetails,
+      removeCurrentGameFromVillager
+    ], function (err, result) {
+      res.status(200).json(result);
+    });
+  };
+  
+  var verifyVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var verifyGame = function (callback) { 
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var updateWinnerDetails = function (game, callback) {
+    let iUserDetails = game.userDetails;
+    iUserDetails['winner'] = iWinner;
+    try {
+      db.collection("game").findOneAndUpdate(
+        {_id: new ObjectId(gameId)},
+        {$set: {userDetails: iUserDetails}},
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback();
+          }
+        }
+      );
+      // {upsert: true, returnNewDocument: true}, 
+    } catch (e){
+      handleError(res, "", "Error adding userDetails", 400);
+    }
+  };
+  
+  var removeCurrentGameFromVillager = function (callback) {
+    try {
+      let iTry = db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {"currentGame": null}},
+        {maxTimeMS: 5}
+      );
+      callback(null, {success: true});
+    }
+    catch(e) {
       handleError(res, "", e, 400);
     }
   };
