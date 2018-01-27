@@ -958,6 +958,8 @@ app.post("/game/remove/villager", function (req, res) {
       verifyGame,
       removeVillager,
       getUpdatedGame,
+      getModerator,
+      getVillagers,
       getUpdatedCircle,
       removeCurrentGameFromVillager
     ], function (err, circle) {
@@ -1017,12 +1019,43 @@ app.post("/game/remove/villager", function (req, res) {
     });
   };
   
+  var getModerator = function (game, callback) {
+    db.collection("villager").findOne({_id: new ObjectId(game.moderator)}, {pin: 0}, function (err, villager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (villager) {
+        game.moderator = villager;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+
+  var getVillagers = function (game, callback) {
+    let arr = [];
+    for (var i = 0; i < game.villagers.length; i++) {
+      arr.push(new ObjectId(game.villagers[i]));
+    }
+    db.collection("villager").find({_id: {$in: arr}}, {pin:0}).toArray(function(err, villagers) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ALL);
+      } else if (villagers) {
+        game.villagers = villagers;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.ALL, 400);
+      }
+    });
+  };
+  
   var getUpdatedCircle = function (game, callback) {
     db.collection("circle").findOne({_id: new ObjectId(game.circle)}, function (err, circle) {
       if (err) {
         handleError(res, err.message, ERRORS.CIRCLE.ONE);
       } else if (circle) {
         circle.game = game;
+        circle.moderator = game.moderator;
         callback(null, circle);
       } else {
         handleError(res, "", ERRORS.CIRCLE.NO, 400);
