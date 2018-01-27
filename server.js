@@ -1242,7 +1242,8 @@ app.post("/game/begin", function (req, res) {
       },
       beginGame,
       retrieveUpdatedGame,
-      getModerator
+      getModerator,
+      getVillagers
     ], function (err, game) {
       res.status(200).json(game);
     });
@@ -1294,6 +1295,22 @@ app.post("/game/begin", function (req, res) {
     });
   };
   
+  var getVillagers = function (game, callback) {
+    let arr = [];
+    for (var i = 0; i < game.villagers.length; i++) {
+      arr.push(new ObjectId(game.villagers[i]));
+    }
+    db.collection("villager").find({_id: {$in: arr}}, {pin:0}).toArray(function(err, villagers) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ALL);
+      } else if (villagers) {
+        game.villagers = villagers;
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.ALL, 400);
+      }
+    });
+  };
+  
   beginAsync();
 });
 
@@ -1314,6 +1331,8 @@ app.post("/game/end", function (req, res) {
       makeCircleAvailable,
       removeCurrentGameFromModerator,
       retrieveUpdatedGame,
+      getModerator,
+      getVillagers
     ], function (err, game) {
       res.status(200).json(game);
     });
@@ -1381,6 +1400,35 @@ app.post("/game/end", function (req, res) {
         callback(null, iGame);
       } else {
         handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getModerator = function (game, callback) {
+    db.collection("villager").findOne({_id: new ObjectId(game.moderator)}, {pin: 0}, function (err, villager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (villager) {
+        game.moderator = villager;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var getVillagers = function (game, callback) {
+    let arr = [];
+    for (var i = 0; i < game.villagers.length; i++) {
+      arr.push(new ObjectId(game.villagers[i]));
+    }
+    db.collection("villager").find({_id: {$in: arr}}, {pin:0}).toArray(function(err, villagers) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ALL);
+      } else if (villagers) {
+        game.villagers = villagers;
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.ALL, 400);
       }
     });
   };
