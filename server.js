@@ -62,6 +62,9 @@ function initializeDatabase() {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 var ERRORS = {
+  LOGIN: {
+    GENERIC: "Your username or password is incorrect. Please try again"
+  },
   REGISTRATION: {
     USERNAME: "Username is already being used",
     VILLAGER: "Failed to register villager",
@@ -171,7 +174,7 @@ app.post("/login", function (req, res) {
       } else if (villager) {
         callback(null, villager);
       } else {
-        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+        handleError(res, "", ERRORS.LOGIN.GENERIC, 400);
       }
     });
   };
