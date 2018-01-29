@@ -103,6 +103,16 @@ var ERRORS = {
     NO_LASTNAME: "No lastnme",
     NO_PICTURE: "No picture",
     NO_COLOR: "No color"
+  },
+  ALIGNMENT: {
+    ALL: "Failed to get all alignments",
+    ONE: "Failed to get this alignment",
+    NO: "No alignment found with this id"
+  },
+  ROLE: {
+    ALL: "Failed to get all roles",
+    ONE: "Failed to get this role",
+    NO: "No role found with this id"
   }
 };
 
@@ -1682,6 +1692,31 @@ app.post("/game/winner", function (req, res) {
   };
   
   beginAsync();
+});
+
+// GET ALL ALIGNMENTS
+app.get("/alignment", function (req, res) {
+  db.collection("alignment").find({}).sort({name: 1}).toArray(function (err, alignments) {
+    if (err) {
+      handleError(res, err.message, ERRORS.ALIGNMENT.ALL);
+    } else {
+      res.status(200).json(alignments);
+    }
+  });
+});
+
+// GET ALL ROLES associated 
+app.get("/roles/:id", function (req, res) {
+  
+  db.collection("role").find({
+    alignment: new ObjectId(req.params.id)
+  }).sort({name: 1}).toArray(function (err, roles) {
+    if (err) {
+      handleError(res, err.message, ERRORS.ROLE.ALL);
+    } else {
+      res.status(200).json(roles);
+    }
+  });
 });
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
