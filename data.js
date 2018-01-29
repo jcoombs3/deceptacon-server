@@ -1,31 +1,6 @@
 var CIRCLES = [
   {
-    name: "Heisman",
-    moderator: null,
-    game: null
-  },
-  {
-    name: "Mitchell",
-    moderator: null,
-    game: null
-  },
-  {
-    name: "Turner",
-    moderator: null,
-    game: null
-  },
-  {
-    name: "King",
-    moderator: null,
-    game: null
-  },
-  {
-    name: "Hicks",
-    moderator: null,
-    game: null
-  },
-  {
-    name: "Chandler",
+    name: "Paranoia Paradise",
     moderator: null,
     game: null
   }
@@ -97,6 +72,27 @@ var VILLAGERS = [
   }
 ];
 
+var ALIGNMENTS = [
+  {
+    name: 'Good'
+  },
+  {
+    name: 'Evil'
+  },
+  {
+    name: 'Vampire'
+  },
+  {
+    name: 'Cult'
+  },
+  {
+    name: 'Neutral'
+  },
+  {
+    name: 'Other'
+  },
+];
+
 module.exports = {
   createTestData: function (db) {
     var i;
@@ -119,6 +115,18 @@ module.exports = {
           db.collection("villager").insertOne(VILLAGERS[ii], function (err, doc) {
             if (!err) {
               console.log('Created Villager: ' + JSON.stringify(doc.ops[0]));
+            }
+          });
+        }
+      });
+    }
+    for (i = 0; i < ALIGNMENTS.length; i++) {
+      let ii = i;
+      db.collection("alignment").findOne({name: ALIGNMENTS[ii].name}, function (err, iAlignment) {
+        if (!iAlignment) {
+          db.collection("alignment").insertOne(ALIGNMENTS[ii], function (err, doc) {
+            if (!err) {
+              console.log('Created Alignment: ' + JSON.stringify(doc.ops[0]));
             }
           });
         }
