@@ -74,22 +74,28 @@ var VILLAGERS = [
 
 var ALIGNMENTS = [
   {
-    name: 'Good'
+    name: 'Good',
+    idx: 0
   },
   {
-    name: 'Evil'
+    name: 'Evil',
+    idx: 1
   },
   {
-    name: 'Vampire'
+    name: 'Vampire',
+    idx: 2
   },
   {
-    name: 'Cult'
+    name: 'Cult',
+    idx: 3
   },
   {
-    name: 'Neutral'
+    name: 'Neutral',
+    idx: 4
   },
   {
-    name: 'Other'
+    name: 'Other',
+    idx: 5
   },
 ];
 

@@ -1696,7 +1696,7 @@ app.post("/game/winner", function (req, res) {
 
 // GET ALL ALIGNMENTS
 app.get("/alignment", function (req, res) {
-  db.collection("alignment").find({}).sort({name: 1}).toArray(function (err, alignments) {
+  db.collection("alignment").find({}).sort({idx: 1}).toArray(function (err, alignments) {
     if (err) {
       handleError(res, err.message, ERRORS.ALIGNMENT.ALL);
     } else {
