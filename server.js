@@ -232,7 +232,10 @@ app.get("/villager/:id", function (req, res) {
       },
       getVillager,
       getGames,
-      getModerators
+      getModerators,
+      getRoles,
+      getAlignments,
+      getWinners
     ], function (err, villager) {
       res.status(200).json(villager);
     });
@@ -252,17 +255,17 @@ app.get("/villager/:id", function (req, res) {
   
   var getGames = function(villager, callback) {
     db.collection("game").find({$or:
-      [{moderator: req.params.id},
-       {villagers: {$in: [req.params.id]}}]
-    }).sort({timestamp: 1}).toArray(function (err, games) {
-      if (err) {
-        handleError(res, err.message, ERRORS.VILLAGER.ONE);
-      } else if (games) {
-        villager.gameHistory = games;
-        callback(null, villager);
-      } else {
-        handleError(res, "", ERRORS.VILLAGER.NO, 400);
-      }
+      [{moderator: req.params.id}, {villagers: {$in: [req.params.id]}}]}, 
+      {timestamp: 1, moderator: 1, userDetails: 1, status: 1}).sort({timestamp: 1})
+      .toArray(function (err, games) {
+        if (err) {
+          handleError(res, err.message, ERRORS.VILLAGER.ONE);
+        } else if (games) {
+          villager.gameHistory = games;
+          callback(null, villager);
+        } else {
+          handleError(res, "", ERRORS.VILLAGER.NO, 400);
+        }
     });
   };
   
@@ -277,6 +280,66 @@ app.get("/villager/:id", function (req, res) {
           handleError(res, err.message, ERRORS.VILLAGER.ONE);
         } else if (moderator) {
           villager.gameHistory[idx].moderator = moderator;
+        }
+        counter++;
+        if (counter >= villager.gameHistory.length) {
+          callback(null, villager);
+        }
+      });
+    }
+  };
+  
+  var getRoles = function (villager, callback) {
+    let counter = 0;
+    for (var i = 0; i < villager.gameHistory.length; i++) {
+      let idx = i;
+      db.collection("role").findOne({
+        _id: new ObjectId(villager.gameHistory[idx].userDetails[villager._id].role)
+      }, function (err, role) {
+        if (err) {
+          handleError(res, err.message, ERRORS.ROLE.ONE);
+        } else if (role) {
+          villager.gameHistory[idx].userDetails[villager._id].role = role;
+        }
+        counter++;
+        if (counter >= villager.gameHistory.length) {
+          callback(null, villager);
+        }
+      });
+    }
+  };
+  
+  var getAlignments = function (villager, callback) {
+    let counter = 0;
+    for (var i = 0; i < villager.gameHistory.length; i++) {
+      let idx = i;
+      db.collection("alignment").findOne({
+        _id: new ObjectId(villager.gameHistory[idx].userDetails[villager._id].alignment)
+      }, {idx: 0}, function (err, alignment) {
+        if (err) {
+          handleError(res, err.message, ERRORS.ALIGNMENT.ONE);
+        } else if (alignment) {
+          villager.gameHistory[idx].userDetails[villager._id].alignment = alignment;
+        }
+        counter++;
+        if (counter >= villager.gameHistory.length) {
+          callback(null, villager);
+        }
+      });
+    }
+  };
+  
+  var getWinners = function (villager, callback) {
+    let counter = 0;
+    for (var i = 0; i < villager.gameHistory.length; i++) {
+      let idx = i;
+      db.collection("alignment").findOne({
+        _id: new ObjectId(villager.gameHistory[idx].userDetails.winner)
+      }, {idx: 0}, function (err, winner) {
+        if (err) {
+          handleError(res, err.message, ERRORS.ALIGNMENT.ONE);
+        } else if (winner) {
+          villager.gameHistory[idx].userDetails.winner = winner;
         }
         counter++;
         if (counter >= villager.gameHistory.length) {
