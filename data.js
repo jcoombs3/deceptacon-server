@@ -24,51 +24,6 @@ var VILLAGERS = [
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
     color: "tan"
-  },
-  {
-    firstname: "Villager",
-    lastname: "C",
-    username: "c",
-    fullname: "Villager C",
-    pin: [0, 0, 0, 0],
-    picture: "Werewolf.png",
-    color: "tan"
-  },
-  {
-    firstname: "Villager",
-    lastname: "D",
-    username: "d",
-    fullname: "Villager D",
-    pin: [0, 0, 0, 0],
-    picture: "Werewolf.png",
-    color: "orange"
-  },
-  {
-    firstname: "Villager",
-    lastname: "E",
-    username: "e",
-    fullname: "Villager E",
-    pin: [0, 0, 0, 0],
-    picture: "Werewolf.png",
-    color: "yellow"
-  },
-  {
-    firstname: "Villager",
-    lastname: "F",
-    username: "f",
-    fullname: "Villager F",
-    pin: [0, 0, 0, 0],
-    picture: "Werewolf.png",
-    color: "tan"
-  },
-  {
-    firstname: "Villager",
-    lastname: "G",
-    username: "g",
-    fullname: "Villager G",
-    pin: [0, 0, 0, 0],
-    picture: "Werewolf.png",
-    color: "darkblue"
   }
 ];
 
@@ -96,7 +51,7 @@ var ALIGNMENTS = [
   {
     name: 'Other',
     idx: 5
-  },
+  }
 ];
 
 var GOOD_ROLES = [
@@ -109,6 +64,87 @@ var GOOD_ROLES = [
   {
     name: 'Bodyguard'
   },
+  {
+    name: 'Apprentice Seer'
+  },
+  {
+    name: 'Aura Seer'
+  },
+  {
+    name: 'Beholder'
+  },
+  {
+    name: 'Cupid'
+  },
+  {
+    name: 'The Count'
+  },
+  {
+    name: 'Diseased'
+  },
+  {
+    name: 'Ghost'
+  },
+  {
+    name: 'Hunter'
+  },
+  {
+    name: 'Village Idiot'
+  },
+  {
+    name: 'Insomniac'
+  },
+  {
+    name: 'Lycan'
+  },
+  {
+    name: 'Martyr'
+  },
+  {
+    name: 'Mason'
+  },
+  {
+    name: 'Mayor'
+  },
+  {
+    name: 'Old Hag'
+  },
+  {
+    name: 'Old Man'
+  },
+  {
+    name: 'Private Investigator'
+  },
+  {
+    name: 'Pacifist'
+  },
+  {
+    name: 'Priest'
+  },
+  {
+    name: 'Prince'
+  },
+  {
+    name: 'Spellcaster'
+  },
+  {
+    name: 'Tough Guy'
+  },
+  {
+    name: 'Troublemaker'
+  },
+  {
+    name: 'The Thing'
+  },
+  {
+    name: 'Witch'
+  },
+  {
+    name: 'Cursed (Not Turned)'
+  },
+  {
+    name: 'Leprechaun'
+  }
 ];
 
 var EVIL_ROLES = [
@@ -121,6 +157,24 @@ var EVIL_ROLES = [
   {
     name: 'Minion'
   },
+  {
+    name: 'Frute Brute'
+  },
+  {
+    name: 'Wolf Man'
+  },
+  {
+    name: 'Sorcerer'
+  },
+  {
+    name: 'Dream Wolf'
+  },
+  {
+    name: 'Lone Wolf'
+  },
+  {
+    name: 'Dire Wolf'
+  }
 ];
 
 var VAMPIRE_ROLES = [
@@ -129,6 +183,9 @@ var VAMPIRE_ROLES = [
   },
   {
     name: 'Dracula'
+  },
+  {
+    name: "Dracula's Wife"
   }
 ];
 
@@ -147,6 +204,30 @@ var NEUTRAL_ROLES = [
   },
   {
     name: 'The Lovers'
+  },
+  {
+    name: 'Bogeyman'
+  },
+  {
+    name: 'Doppleganger (Not Turned)'
+  },
+  {
+    name: 'Drunk (Not Turned)'
+  },
+  {
+    name: 'Hoodlum'
+  },
+  {
+    name: 'Bloody Mary'
+  },
+  {
+    name: 'Chupacabra'
+  },
+  {
+    name: 'Sasquatch'
+  },
+  {
+    name: 'Nostradamus'
   }
 ];
 

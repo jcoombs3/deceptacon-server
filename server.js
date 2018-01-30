@@ -231,7 +231,8 @@ app.get("/villager/:id", function (req, res) {
         callback(null);
       },
       getVillager,
-      getCareerHistory
+      getGames,
+      getModerators
     ], function (err, villager) {
       res.status(200).json(villager);
     });
@@ -249,11 +250,11 @@ app.get("/villager/:id", function (req, res) {
     });
   };
   
-  var getCareerHistory = function(villager, callback) {
+  var getGames = function(villager, callback) {
     db.collection("game").find({$or:
       [{moderator: req.params.id},
        {villagers: {$in: [req.params.id]}}]
-    }).toArray(function (err, games) {
+    }).sort({timestamp: 1}).toArray(function (err, games) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ONE);
       } else if (games) {
@@ -263,6 +264,26 @@ app.get("/villager/:id", function (req, res) {
         handleError(res, "", ERRORS.VILLAGER.NO, 400);
       }
     });
+  };
+  
+  var getModerators = function (villager, callback) {
+    let counter = 0;
+    for (var i = 0; i < villager.gameHistory.length; i++) {
+      let idx = i;
+      db.collection("villager").findOne({
+        _id: new ObjectId(villager.gameHistory[idx].moderator)
+      }, {pin: 0}, function (err, moderator) {
+        if (err) {
+          handleError(res, err.message, ERRORS.VILLAGER.ONE);
+        } else if (moderator) {
+          villager.gameHistory[idx].moderator = moderator;
+        }
+        counter++;
+        if (counter >= villager.gameHistory.length) {
+          callback(null, villager);
+        }
+      });
+    }
   };
   
   beginAsync();
