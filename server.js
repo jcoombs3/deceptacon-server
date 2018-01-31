@@ -121,6 +121,7 @@ var ERRORS = {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 // curl -G localhost:8080/test
+// curl -G localhost:8080/villager/5a70d74d4d73673deb7903fd
 
 app.get("/test", function (req, res) {
   deceptaconTests.foo(res, db);
@@ -293,19 +294,29 @@ app.get("/villager/:id", function (req, res) {
     let counter = 0;
     for (var i = 0; i < villager.gameHistory.length; i++) {
       let idx = i;
-      db.collection("role").findOne({
-        _id: new ObjectId(villager.gameHistory[idx].userDetails[villager._id].role)
-      }, function (err, role) {
-        if (err) {
-          handleError(res, err.message, ERRORS.ROLE.ONE);
-        } else if (role) {
-          villager.gameHistory[idx].userDetails[villager._id].role = role;
-        }
+      if (villager.gameHistory[idx].userDetails[villager._id]) {
+        console.log('does not equal');
+        db.collection("role").findOne({
+          _id: new ObjectId(villager.gameHistory[idx].userDetails[villager._id].role)
+        }, function (err, role) {
+          if (err) {
+            handleError(res, err.message, ERRORS.ROLE.ONE);
+          } else if (role) {
+            villager.gameHistory[idx].userDetails[villager._id].role = role;
+          }
+          counter++;
+          checkCounter(counter, villager, callback);
+        });
+      } else {
         counter++;
-        if (counter >= villager.gameHistory.length) {
-          callback(null, villager);
-        }
-      });
+        checkCounter(counter, villager, callback);
+      }
+    }
+  };
+  
+  var checkCounter = function (counter, villager, callback) {
+    if (counter >= villager.gameHistory.length) {
+      callback(null, villager);
     }
   };
   
@@ -313,19 +324,22 @@ app.get("/villager/:id", function (req, res) {
     let counter = 0;
     for (var i = 0; i < villager.gameHistory.length; i++) {
       let idx = i;
-      db.collection("alignment").findOne({
-        _id: new ObjectId(villager.gameHistory[idx].userDetails[villager._id].alignment)
-      }, {idx: 0}, function (err, alignment) {
-        if (err) {
-          handleError(res, err.message, ERRORS.ALIGNMENT.ONE);
-        } else if (alignment) {
-          villager.gameHistory[idx].userDetails[villager._id].alignment = alignment;
-        }
+      if (villager.gameHistory[idx].userDetails[villager._id]) {
+        db.collection("alignment").findOne({
+          _id: new ObjectId(villager.gameHistory[idx].userDetails[villager._id].alignment)
+        }, {idx: 0}, function (err, alignment) {
+          if (err) {
+            handleError(res, err.message, ERRORS.ALIGNMENT.ONE);
+          } else if (alignment) {
+            villager.gameHistory[idx].userDetails[villager._id].alignment = alignment;
+          }
+          counter++;
+          checkCounter(counter, villager, callback);
+        });
+      } else {
         counter++;
-        if (counter >= villager.gameHistory.length) {
-          callback(null, villager);
-        }
-      });
+        checkCounter(counter, villager, callback);
+      }
     }
   };
   
