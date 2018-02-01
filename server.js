@@ -135,13 +135,17 @@ app.get("/test", function (req, res) {
 app.post("/register/villager", function (req, res) {
   // normalize and capitalize for consistency in villager input
   var iFirstName = capitalize(req.body.firstname.toLowerCase());
-  var iLastName = capitalize(req.body.lastname.toLowerCase());
-  var iFullName = iFirstName + " " + iLastName;
+  var iLastName = null;
+  var iFullName = iFirstName;
+  if (req.body.lastname) {
+    iLastName = capitalize(req.body.lastname.toLowerCase());
+    iFullName = iFirstName + " " + iLastName;
+  }
 
   var villager = {
     username: req.body.username,
     firstname: iFirstName,
-    lastname: iLastName,
+    lastname: iLastName ? iLastName : '',
     fullname: iFullName,
     pin: req.body.pin,
     picture: req.body.picture,
