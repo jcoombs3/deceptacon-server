@@ -374,7 +374,7 @@ app.get("/villager/:id", function (req, res) {
 app.post("/save/villager", function (req, res) {
   const villagerId = req.body._id;
   const firstname = req.body.firstname;
-  const lastname = req.body.lastname ? req.body.lastname : "";
+  const lastname = req.body.lastname ? req.body.lastname : " ";
   const picture = req.body.picture;
   const color = req.body.color;
   
