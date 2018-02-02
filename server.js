@@ -121,7 +121,7 @@ var ERRORS = {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 // curl -G localhost:8080/test
-// curl -G localhost:8080/villager/5a70d74d4d73673deb7903fd
+// curl -G localhost:8080/villager/5a73bb876498004763ebe18f
 
 app.get("/test", function (req, res) {
   deceptaconTests.foo(res, db);
@@ -135,7 +135,7 @@ app.get("/test", function (req, res) {
 app.post("/register/villager", function (req, res) {
   // normalize and capitalize for consistency in villager input
   var iFirstName = capitalize(req.body.firstname.toLowerCase());
-  var iLastName = null;
+  var iLastName = "";
   var iFullName = iFirstName;
   if (req.body.lastname) {
     iLastName = capitalize(req.body.lastname.toLowerCase());
@@ -259,8 +259,9 @@ app.get("/villager/:id", function (req, res) {
   };
   
   var getGames = function(villager, callback) {
+    let userDetails = "userDetails." + req.params.id + ""; 
     db.collection("game").find({$or:
-      [{moderator: req.params.id}, {villagers: {$in: [req.params.id]}}]}, 
+      [{moderator: req.params.id}, {villagers: {$in: [req.params.id]}}, {userDetails: {$exists: true}}]}, 
       {timestamp: 1, moderator: 1, userDetails: 1, status: 1}).sort({timestamp: 1})
       .toArray(function (err, games) {
         if (err) {
@@ -299,7 +300,6 @@ app.get("/villager/:id", function (req, res) {
     for (var i = 0; i < villager.gameHistory.length; i++) {
       let idx = i;
       if (villager.gameHistory[idx].userDetails[villager._id]) {
-        console.log('does not equal');
         db.collection("role").findOne({
           _id: new ObjectId(villager.gameHistory[idx].userDetails[villager._id].role)
         }, function (err, role) {
@@ -382,6 +382,8 @@ app.post("/save/villager", function (req, res) {
     handleError(res, "", ERRORS.SAVE.NO_VILLAGER_ID, 400);
   } else if (!firstname) {
     handleError(res, "", ERRORS.SAVE.NO_FIRSTNAME, 400);      
+  } else if (!lastname) {
+    handleError(res, "", ERRORS.SAVE.NO_LASTNAME, 400);      
   } else if (!picture) {
     handleError(res, "", ERRORS.SAVE.NO_PICTURE, 400);      
   } else if (!color) {
@@ -419,7 +421,7 @@ app.post("/save/villager", function (req, res) {
     try {
       db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(villagerId)},
-        {$set: {firstname: firstname, lastname: lastname ? lastname: "", fullname: fullname, picture: picture, color: color}},
+        {$set: {firstname: firstname, lastname: lastname, fullname: fullname, picture: picture, color: color}},
         {upsert: true, returnNewDocument: true}, 
         function(err, doc) {
           if (err) { throw err; }
