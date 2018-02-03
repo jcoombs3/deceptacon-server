@@ -121,7 +121,7 @@ var ERRORS = {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 // curl -G localhost:8080/test
-// curl -G localhost:8080/villager/5a73bb876498004763ebe18f
+// curl -G localhost:8080/villager/5a75fa1a837524a589608e47
 
 app.get("/test", function (req, res) {
   deceptaconTests.foo(res, db);
@@ -270,7 +270,11 @@ app.get("/villager/:id", function (req, res) {
           handleError(res, err.message, ERRORS.VILLAGER.ONE);
         } else if (games) {
           villager.gameHistory = games;
-          callback(null, villager);
+          if (villager.gameHistory.length > 0) {
+            callback(null, villager);
+          } else {
+            res.status(200).json(villager);
+          }
         } else {
           handleError(res, "", ERRORS.VILLAGER.NO, 400);
         }
