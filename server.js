@@ -149,7 +149,9 @@ app.post("/register/villager", function (req, res) {
     fullname: iFullName,
     pin: req.body.pin,
     picture: req.body.picture,
-    color: req.body.color
+    color: req.body.color,
+    isAdmin: false,
+    isMod: false
   };
   
   db.collection("villager").findOne({username: villager.username}, function (err, iVillager) {
@@ -218,7 +220,7 @@ app.post("/login", function (req, res) {
 
 // GET ALL VILLAGERS
 app.get("/villager", function (req, res) {
-  db.collection("villager").find({}, {_id: 1, fullname: 1, picture: 1, color: 1}).sort({lastname: 1}).toArray(function (err, villagers) {
+  db.collection("villager").find({}, {_id: 1, fullname: 1, picture: 1, color: 1, isMod: 1, isAdmin: 1}).sort({firstname: 1}).toArray(function (err, villagers) {
     if (err) {
       handleError(res, err.message, ERRORS.VILLAGER.ALL);
     } else {

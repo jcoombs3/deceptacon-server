@@ -3,6 +3,11 @@ var CIRCLES = [
     name: "Paranoia Paradise",
     moderator: null,
     game: null
+  },
+  {
+    name: "Second Room",
+    moderator: null,
+    game: null
   }
 ];
 
@@ -14,7 +19,9 @@ var VILLAGERS = [
     fullname: "Villager A",
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
-    color: "darkblue"
+    color: "darkblue",
+    isMod: true,
+    isAdmin: true
   },
   {
     firstname: "Villager",
@@ -23,7 +30,9 @@ var VILLAGERS = [
     fullname: "Villager B",
     pin: [0, 0, 0, 0],
     picture: "Werewolf.png",
-    color: "tan"
+    color: "tan",
+    isMod: false,
+    isAdmin: false
   }
 ];
 
