@@ -372,6 +372,79 @@ app.get("/villager/:id", function (req, res) {
   beginAsync();
 });
 
+// UPDATE VILLAGER RIGHTS 
+app.post("/rights/villager", function (req, res) {
+  const villagerId = req.body._id;
+  const isAdmin = req.body.isAdmin;
+  const isMod = req.body.isMod;
+  
+  if (!villagerId) {
+    handleError(res, "", ERRORS.SAVE.NO_VILLAGER_ID, 400);
+  } else if (!isAdmin) {
+    handleError(res, "", 'No isAdmin found', 400);      
+  } else if (!isMod) {
+    handleError(res, "", 'No isMod found', 400);      
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      verifyVillager,
+      updateVillager,
+      retrieveUpdatedVillager
+    ], function (err, villager) {
+      res.status(200).json(villager);
+    });
+  };
+  
+  var verifyVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback();
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var updateVillager = function (callback) {
+    try {
+      db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villagerId)},
+        {$set: {isAdmin: isAdmin, isMod: isMod}},
+        {upsert: true, returnNewDocument: true}, 
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            callback();
+          }
+        }
+      );
+    } catch (e){
+      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+    }
+  };
+  
+  var retrieveUpdatedVillager = function (callback) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (iVillager) {
+        callback(null, iVillager);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  beginAsync();
+  
+});
+
 // SAVE VILLAGER
 app.post("/save/villager", function (req, res) {
   const villagerId = req.body._id;
