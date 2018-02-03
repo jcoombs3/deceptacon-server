@@ -380,9 +380,9 @@ app.post("/rights/villager", function (req, res) {
   
   if (!villagerId) {
     handleError(res, "", ERRORS.SAVE.NO_VILLAGER_ID, 400);
-  } else if (!isAdmin) {
+  } else if (isAdmin === undefined || isAdmin === null) {
     handleError(res, "", 'No isAdmin found', 400);      
-  } else if (!isMod) {
+  } else if (isMod === undefined || isMod === null) {
     handleError(res, "", 'No isMod found', 400);      
   }
   
