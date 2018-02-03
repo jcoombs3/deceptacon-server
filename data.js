@@ -1,11 +1,21 @@
 var CIRCLES = [
   {
-    name: "Paranoia Paradise",
+    name: "Fado Irish Pub A",
     moderator: null,
     game: null
   },
   {
-    name: "Second Room",
+    name: "Fado Irish Pub B",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Laser Tag A",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Laser Tag B",
     moderator: null,
     game: null
   }

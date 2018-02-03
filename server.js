@@ -88,6 +88,7 @@ var ERRORS = {
     NO_VILLAGER_ID: "No villager id was supplied",
     NO_GAME_ID: "No game id was supplied",
     NO_MOD_ID: "No moderator id was supplied",
+    NO_SEATS: "No seats was supplied",
     GAME_FULL: "Game is full"
   },
   MODERATE: {
@@ -915,6 +916,94 @@ app.get("/game/:id", function (req, res) {
   
   beginAsync();
 });
+
+// UPDATE GAME, SEATS 
+app.post("/game/update", function (req, res) {
+  const gameId = req.body.gameId;
+  const seats = req.body.seats;
+  
+  if (!gameId) {
+    handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+  } else if (!seats) {
+    handleError(res, "", ERRORS.GAME.NO_SEATS, 400);
+  }
+  
+  var beginAsync = function () {
+    async.waterfall([
+      function(callback) {
+        callback(null);
+      },
+      updateGame,
+      retrieveUpdatedGame,
+      getModerator,
+      getVillagers
+    ], function (err, game) {
+      res.status(200).json(game);
+    });
+  };
+  
+  var updateGame = function (callback) {
+    try {
+      db.collection("game").findOneAndUpdate(
+      {_id: new ObjectId(gameId)},
+      {$set: {seats:seats}},
+      {upsert: true, returnNewDocument: true}, 
+      function(err, doc) {
+        if (err) { throw err; }
+        else { 
+          callback();
+        }
+      });
+    } catch (e){
+      handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
+    }
+  };
+  
+  var retrieveUpdatedGame = function (callback) {
+    db.collection("game").findOne({_id: new ObjectId(gameId)}, function (err, iGame) {
+      if (err) {
+        handleError(res, err.message, ERRORS.GAME.ONE);
+      } else if (iGame) {
+        callback(null, iGame);
+      } else {
+        handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getModerator = function (game, callback) {
+    db.collection("villager").findOne({_id: new ObjectId(game.moderator)}, {pin: 0}, function (err, villager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (villager) {
+        game.moderator = villager;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var getVillagers = function (game, callback) {
+    let arr = [];
+    for (var i = 0; i < game.villagers.length; i++) {
+      arr.push(new ObjectId(game.villagers[i]));
+    }
+    db.collection("villager").find({_id: {$in: arr}}, {pin:0}).toArray(function(err, villagers) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ALL);
+      } else if (villagers) {
+        game.villagers = villagers;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.ALL, 400);
+      }
+    });
+  };
+  
+  beginAsync();
+});
+
 
 // JOIN A GAME 
 app.post("/game/join", function (req, res) {
