@@ -122,7 +122,9 @@ var ERRORS = {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 // curl -G localhost:8080/test
-// curl -G localhost:8080/villager/5a75fa1a837524a589608e47
+
+// curl -G localhost:8080/villager/5a7648ffc0f3bd0014f8f326
+// curl -G localhost:8080/villager/5a763d29222f20c941cc1af8
 
 app.get("/test", function (req, res) {
   deceptaconTests.foo(res, db);
@@ -263,10 +265,10 @@ app.get("/villager/:id", function (req, res) {
   };
   
   var getGames = function(villager, callback) {
-    let userDetails = "userDetails." + req.params.id + ""; 
+    let iUserDetails = "userDetails." + req.params.id + ""; 
     db.collection("game").find({$or:
-      [{moderator: req.params.id}, {villagers: {$in: [req.params.id]}}, {userDetails: {$exists: true}}]}, 
-      {timestamp: 1, moderator: 1, userDetails: 1, status: 1, circle: 1}).sort({timestamp: 1})
+      [{moderator: req.params.id}, {villagers: {$in: [req.params.id]}}, {iUserDetails: {$exists: true}}]}, 
+      {timestamp: 1, moderator: 1, userDetails: 1, status: 1}).sort({timestamp: 1})
       .toArray(function (err, games) {
         if (err) {
           handleError(res, err.message, ERRORS.VILLAGER.ONE);
