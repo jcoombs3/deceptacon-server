@@ -1,21 +1,36 @@
 var CIRCLES = [
   {
-    name: "Fado Irish Pub A",
+    name: "Peach A",
     moderator: null,
     game: null
   },
   {
-    name: "Fado Irish Pub B",
+    name: "Peach B",
     moderator: null,
     game: null
   },
   {
-    name: "Laser Tag A",
+    name: "Dogwood A",
     moderator: null,
     game: null
   },
   {
-    name: "Laser Tag B",
+    name: "Dogwood B",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "King",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Stone Mtn",
+    moderator: null,
+    game: null
+  },
+  {
+    name: "Live Oak",
     moderator: null,
     game: null
   }
@@ -23,26 +38,15 @@ var CIRCLES = [
 
 var VILLAGERS = [
   {
-    firstname: "Villager",
-    lastname: "A",
-    username: "a",
-    fullname: "Villager A",
-    pin: [0, 0, 0, 0],
-    picture: "Werewolf.png",
-    color: "darkblue",
+    firstname: "John",
+    lastname: "Coombs",
+    username: "ancientwings",
+    fullname: "John Coombs",
+    pin: [2, 2, 2, 2],
+    picture: "Drunk.png",
+    color: "orange",
     isMod: true,
     isAdmin: true
-  },
-  {
-    firstname: "Villager",
-    lastname: "B",
-    username: "b",
-    fullname: "Villager B",
-    pin: [0, 0, 0, 0],
-    picture: "Werewolf.png",
-    color: "tan",
-    isMod: false,
-    isAdmin: false
   }
 ];
 
