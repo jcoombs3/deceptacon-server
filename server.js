@@ -240,6 +240,7 @@ app.get("/villager/:id", function (req, res) {
       },
       getVillager,
       getGames,
+      getCircleName,
       getModerators,
       getRoles,
       getAlignments,
@@ -265,7 +266,7 @@ app.get("/villager/:id", function (req, res) {
     let userDetails = "userDetails." + req.params.id + ""; 
     db.collection("game").find({$or:
       [{moderator: req.params.id}, {villagers: {$in: [req.params.id]}}, {userDetails: {$exists: true}}]}, 
-      {timestamp: 1, moderator: 1, userDetails: 1, status: 1}).sort({timestamp: 1})
+      {timestamp: 1, moderator: 1, userDetails: 1, status: 1, circle: 1}).sort({timestamp: 1})
       .toArray(function (err, games) {
         if (err) {
           handleError(res, err.message, ERRORS.VILLAGER.ONE);
@@ -280,6 +281,25 @@ app.get("/villager/:id", function (req, res) {
           handleError(res, "", ERRORS.VILLAGER.NO, 400);
         }
     });
+  };
+  
+  var getCircleName = function (villager, callback) {
+    let counter = 0;
+    for (var i = 0; i < villager.gameHistory.length; i++) {
+      let idx = i;
+      db.collection("circle").findOne({
+        _id: new ObjectId(villager.gameHistory[idx].circle)
+      }, {pin: 0}, function (err, circle) {
+        if (err) {
+          handleError(res, err.message, ERRORS.CIRCLE.ONE);
+        } else if (moderator) {
+          villager.gameHistory[idx].circle = circle.name;
+        }
+        counter++;
+        if (counter >= villager.gameHistory.length) {
+          callback(null, villager);
+        }
+      });
   };
   
   var getModerators = function (villager, callback) {
