@@ -268,7 +268,7 @@ app.get("/villager/:id", function (req, res) {
     let iUserDetails = "userDetails." + req.params.id + ""; 
     db.collection("game").find({$or:
       [{moderator: req.params.id}, {villagers: {$in: [req.params.id]}}, {iUserDetails: {$exists: true}}]}, 
-      {timestamp: 1, moderator: 1, userDetails: 1, status: 1}).sort({timestamp: 1})
+      {timestamp: 1, moderator: 1, userDetails: 1, status: 1, circle: 1}).sort({timestamp: 1})
       .toArray(function (err, games) {
         if (err) {
           handleError(res, err.message, ERRORS.VILLAGER.ONE);
