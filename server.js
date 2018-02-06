@@ -240,7 +240,7 @@ app.get("/villager/:id", function (req, res) {
       },
       getVillager,
       getGames,
-      getCircleName,
+      getCircleNames,
       getModerators,
       getRoles,
       getAlignments,
@@ -283,7 +283,7 @@ app.get("/villager/:id", function (req, res) {
     });
   };
   
-  var getCircleName = function (villager, callback) {
+  var getCircleNames = function (villager, callback) {
     let counter = 0;
     for (var i = 0; i < villager.gameHistory.length; i++) {
       let idx = i;
@@ -300,6 +300,7 @@ app.get("/villager/:id", function (req, res) {
           callback(null, villager);
         }
       });
+    }
   };
   
   var getModerators = function (villager, callback) {
