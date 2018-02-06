@@ -292,7 +292,7 @@ app.get("/villager/:id", function (req, res) {
       }, {pin: 0}, function (err, circle) {
         if (err) {
           handleError(res, err.message, ERRORS.CIRCLE.ONE);
-        } else if (moderator) {
+        } else if (circle) {
           villager.gameHistory[idx].circle = circle.name;
         }
         counter++;
