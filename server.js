@@ -45,22 +45,6 @@ mongoClient.connect(MONGODB_URI, function (err, database) {
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-function capitalize(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
-function initializeDatabase() {
-  deceptaconMobileData.createTestData(db);
-}
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
-
 var ERRORS = {
   LOGIN: {
     GENERIC: "Your username or password is incorrect. Please try again"
@@ -114,8 +98,59 @@ var ERRORS = {
     ALL: "Failed to get all roles",
     ONE: "Failed to get this role",
     NO: "No role found with this id"
+  },
+  AUTHENTICATION: {
+    GENERIC: "Bad authentication"
   }
 };
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+function initializeDatabase() {
+  deceptaconMobileData.createTestData(db);
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+function checkAuthentication(id, token) {
+  console.log('++ checkAuthentication');
+  console.log(id, token);
+  db.collection("villager").findOne({_id: new ObjectId(id), token: token}, function (err, villager) {
+    if (err) {
+      return false;
+    } else if (villager) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 // DEV TESTS //
@@ -125,6 +160,7 @@ var ERRORS = {
 
 // curl -G localhost:8080/villager/5a7648ffc0f3bd0014f8f326
 // curl -G localhost:8080/villager/5a763d29222f20c941cc1af8
+// curl -H "Content-Type: application/json" -d '{"username": "ancientwings", "pin":[2,2,2,2]}' localhost:8080/login
 
 app.get("/test", function (req, res) {
   deceptaconTests.foo(res, db);
@@ -181,6 +217,7 @@ app.post("/login", function (req, res) {
         callback(null);
       },
       getVillager,
+      createAuthenticationToken,
       getCurrentGame
     ], function (err, villager) {
       res.status(200).json(villager);
@@ -197,6 +234,26 @@ app.post("/login", function (req, res) {
         handleError(res, "", ERRORS.LOGIN.GENERIC, 400);
       }
     });
+  };
+  
+  var createAuthenticationToken = function(villager, callback) {
+    let token = guid();
+    try {
+      db.collection("villager").findOneAndUpdate(
+        {_id: new ObjectId(villager._id)},
+        {$set: {token: token}},
+        {upsert: true, returnNewDocument: true}, 
+        function(err, doc) {
+          if (err) { throw err; }
+          else { 
+            villager.token = token;
+            callback(null, villager);
+          }
+        }
+      );
+    } catch (e){
+      handleError(res, "", ERRORS.LOGIN.GENERIC, 400);
+    }
   };
   
   var getCurrentGame = function(villager, callback) {
@@ -476,11 +533,12 @@ app.post("/rights/villager", function (req, res) {
 // SAVE VILLAGER
 app.post("/save/villager", function (req, res) {
   const villagerId = req.body._id;
+  const token = req.body.token;
   const firstname = req.body.firstname;
   const lastname = req.body.lastname;
   const picture = req.body.picture;
   const color = req.body.color;
-  
+
   if (!villagerId) {
     handleError(res, "", ERRORS.SAVE.NO_VILLAGER_ID, 400);
   } else if (!firstname) {
@@ -491,6 +549,10 @@ app.post("/save/villager", function (req, res) {
     handleError(res, "", ERRORS.SAVE.NO_PICTURE, 400);      
   } else if (!color) {
     handleError(res, "", ERRORS.SAVE.NO_COLOR, 400);      
+  }
+  
+  if (!checkAuthentication(villagerId, token)) {
+    handleError(res, "", ERRORS.AUTHENTICATION.GENERIC, 400);
   }
   
   const fullname = firstname + " " + lastname;
