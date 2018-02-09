@@ -238,6 +238,7 @@ app.post("/login", function (req, res) {
   
   var createAuthenticationToken = function(villager, callback) {
     let token = guid();
+    villager.token = token;
     try {
       db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(villager._id)},
@@ -246,7 +247,6 @@ app.post("/login", function (req, res) {
         function(err, doc) {
           if (err) { throw err; }
           else { 
-            villager.token = token;
             callback(null, villager);
           }
         }
