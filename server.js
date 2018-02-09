@@ -138,16 +138,14 @@ function guid() {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-function checkAuthentication(id, token) {
-  console.log('++ checkAuthentication');
-  console.log(id, token);
+function checkAuthentication(id, token, res, callback) {
   db.collection("villager").findOne({_id: new ObjectId(id), token: token}, function (err, villager) {
     if (err) {
-      return false;
+      handleError(res, err.message, ERRORS.AUTHENTICATION.GENERIC);
     } else if (villager) {
-      return true;
+      callback();
     } else {
-      return false;
+      handleError(res, "", ERRORS.AUTHENTICATION.GENERIC, 400);
     }
   });
 }
@@ -551,10 +549,6 @@ app.post("/save/villager", function (req, res) {
     handleError(res, "", ERRORS.SAVE.NO_COLOR, 400);      
   }
   
-  if (!checkAuthentication(villagerId, token)) {
-    handleError(res, "", ERRORS.AUTHENTICATION.GENERIC, 400);
-  }
-  
   const fullname = firstname + " " + lastname;
   
   var beginAsync = function () {
@@ -562,11 +556,18 @@ app.post("/save/villager", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyVillager,
       saveVillager,
       retrieveUpdatedVillager,
     ], function (err, villager) {
       res.status(200).json(villager);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(villagerId, token, res, () => {
+      callback();
     });
   };
   
