@@ -602,7 +602,7 @@ app.post("/save/villager", function (req, res) {
   };
   
   var retrieveUpdatedVillager = function (callback) {
-    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, function (err, iVillager) {
+    db.collection("villager").findOne({_id: new ObjectId(villagerId)}, {pin: 0, token: 0}, function (err, iVillager) {
       if (err) {
         handleError(res, err.message, ERRORS.VILLAGER.ONE);
       } else if (iVillager) {
