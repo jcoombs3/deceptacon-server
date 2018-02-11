@@ -79,6 +79,9 @@ var ALIGNMENTS = [
 
 var GOOD_ROLES = [
   {
+    name: 'Mad Bomber'
+  },
+  {
     name: 'Villager'
   },
   {
@@ -86,6 +89,9 @@ var GOOD_ROLES = [
   },
   {
     name: 'Bodyguard'
+  },
+  {
+    name: 'Gunsmith'
   },
   {
     name: 'Apprentice Seer'
@@ -171,6 +177,9 @@ var GOOD_ROLES = [
 ];
 
 var EVIL_ROLES = [
+  {
+    name: 'Alpha Wolf'
+  },
   {
     name: 'Werewolf'
   },
