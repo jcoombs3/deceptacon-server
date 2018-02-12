@@ -1032,6 +1032,8 @@ app.get("/game/:id", function (req, res) {
 app.post("/game/update", function (req, res) {
   const gameId = req.body.gameId;
   const seats = req.body.seats;
+  const modId = req.body.modId;
+  const token = req.body.modId;
   
   if (!gameId) {
     handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
@@ -1044,12 +1046,19 @@ app.post("/game/update", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       updateGame,
       retrieveUpdatedGame,
       getModerator,
       getVillagers
     ], function (err, game) {
       res.status(200).json(game);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(modId, token, res, () => {
+      callback();
     });
   };
   
