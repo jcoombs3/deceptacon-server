@@ -1033,7 +1033,7 @@ app.post("/game/update", function (req, res) {
   const gameId = req.body.gameId;
   const seats = req.body.seats;
   const modId = req.body.modId;
-  const token = req.body.modId;
+  const token = req.body.token;
   
   if (!gameId) {
     handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
