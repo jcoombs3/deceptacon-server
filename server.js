@@ -1120,6 +1120,7 @@ app.post("/game/update", function (req, res) {
 app.post("/game/join", function (req, res) {
   const villagerId = req.body.villagerId;
   const gameId = req.body.gameId;
+  const token = req.body.token;
   
   if (!villagerId) {
     handleError(res, "", ERRORS.GAME.NO_VILLAGER_ID, 400);
@@ -1132,6 +1133,7 @@ app.post("/game/join", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyVillager,
       verifyGame,
       verifySeatAvailable,
@@ -1141,6 +1143,12 @@ app.post("/game/join", function (req, res) {
       setCurrentGame
     ], function (err, circle) {
       res.status(201).json(circle);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(villagerId, token, res, () => {
+      callback();
     });
   };
   
