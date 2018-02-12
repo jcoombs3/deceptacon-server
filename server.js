@@ -809,6 +809,7 @@ app.post("/register/game", function (req, res) {
   const villagerId = req.body.villagerId;
   const circleId = req.body.circleId;
   const gameObj = req.body.game;
+  const token = req.body.token;
   gameObj.moderator = villagerId;
   gameObj.villagers = [];
   gameObj.placeholders = [];
@@ -834,6 +835,7 @@ app.post("/register/game", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyVillager,
       verifyCircle,
       verifyHasNoGame,
@@ -844,6 +846,12 @@ app.post("/register/game", function (req, res) {
       getModerator
     ], function (err, result) {
       
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(villagerId, token, res, () => {
+      callback();
     });
   };
   
