@@ -1956,6 +1956,7 @@ app.post("/game/publish", function (req, res) {
   const villagerId = req.body.villagerId;
   const iAlignment = req.body.alignment;
   const iRole = req.body.role;
+  const token = req.body.token;
   const detailObj = {
     alignment: iAlignment,
     role: iRole
@@ -1976,12 +1977,19 @@ app.post("/game/publish", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyVillager,
       verifyGame,
       updateVillagerDetails,
       removeCurrentGameFromVillager
     ], function (err, result) {
       res.status(200).json(result);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(villagerId, token, res, () => {
+      callback();
     });
   };
   
@@ -2051,6 +2059,7 @@ app.post("/game/winner", function (req, res) {
   const gameId = req.body.gameId;
   const villagerId = req.body.villagerId;
   const iWinner = req.body.winner;
+  const token = req.body.token;
   
   if (!gameId) {
     handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
@@ -2065,12 +2074,19 @@ app.post("/game/winner", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyVillager,
       verifyGame,
       updateWinnerDetails,
       removeCurrentGameFromVillager
     ], function (err, result) {
       res.status(200).json(result);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(villagerId, token, res, () => {
+      callback();
     });
   };
   
