@@ -1248,6 +1248,7 @@ app.post("/game/join", function (req, res) {
 app.post("/game/placeholder", function (req, res) {
   const modId = req.body.modId;
   const gameId = req.body.gameId;
+  const token = req.body.token;
   
   if (!modId) {
     handleError(res, "", ERRORS.GAME.NO_MOD_ID, 400);
@@ -1260,6 +1261,7 @@ app.post("/game/placeholder", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyGame,
       verifySeatAvailable,
       reservePlaceholderSeat,
@@ -1269,6 +1271,12 @@ app.post("/game/placeholder", function (req, res) {
       getUpdatedCircle
     ], function (err, circle) {
       res.status(201).json(circle);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(modId, token, res, () => {
+      callback();
     });
   };
   
