@@ -1373,6 +1373,8 @@ app.post("/game/placeholder", function (req, res) {
 app.post("/game/remove/villager", function (req, res) {
   const villagerId = req.body.villagerId;
   const gameId = req.body.gameId;
+  const userId = req.body.userId;
+  const token = req.body.token;
   
   if (!villagerId) {
     handleError(res, "", ERRORS.GAME.NO_VILLAGER_ID, 400);
@@ -1385,6 +1387,7 @@ app.post("/game/remove/villager", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyVillager,
       verifyGame,
       removeVillager,
@@ -1395,6 +1398,12 @@ app.post("/game/remove/villager", function (req, res) {
       removeCurrentGameFromVillager
     ], function (err, circle) {
       res.status(200).json(circle);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(userId, token, res, () => {
+      callback();
     });
   };
   
