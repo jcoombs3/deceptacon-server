@@ -1663,6 +1663,8 @@ app.post("/game/remove/placeholder", function (req, res) {
 // BEGIN A GAME
 app.post("/game/begin", function (req, res) {
   const gameId = req.body.gameId;
+  const modId = req.body.modId;
+  const token = req.body.token;
   
   if (!gameId) {
     handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
@@ -1673,12 +1675,19 @@ app.post("/game/begin", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       beginGame,
       retrieveUpdatedGame,
       getModerator,
       getVillagers
     ], function (err, game) {
       res.status(200).json(game);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(modId, token, res, () => {
+      callback();
     });
   };
   
@@ -1751,6 +1760,8 @@ app.post("/game/begin", function (req, res) {
 // END A GAME
 app.post("/game/end", function (req, res) {
   const gameId = req.body.gameId;
+  const modId = req.body.modId;
+  const token = req.body.token;
   
   if (!gameId) {
     handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
@@ -1761,6 +1772,7 @@ app.post("/game/end", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       endGame,
       makeCircleAvailable,
       retrieveUpdatedGame,
@@ -1768,6 +1780,12 @@ app.post("/game/end", function (req, res) {
       getVillagers
     ], function (err, game) {
       res.status(200).json(game);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(modId, token, res, () => {
+      callback();
     });
   };
   
