@@ -457,9 +457,11 @@ app.get("/villager/:id", function (req, res) {
 
 // UPDATE VILLAGER RIGHTS 
 app.post("/rights/villager", function (req, res) {
+  const adminId = req.body.adminId;
   const villagerId = req.body._id;
   const isAdmin = req.body.isAdmin;
   const isMod = req.body.isMod;
+  const token = req.body.token;
   
   if (!villagerId) {
     handleError(res, "", ERRORS.SAVE.NO_VILLAGER_ID, 400);
@@ -474,11 +476,18 @@ app.post("/rights/villager", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyVillager,
       updateVillager,
       retrieveUpdatedVillager
     ], function (err, villager) {
       res.status(200).json(villager);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(adminId, token, res, () => {
+      callback();
     });
   };
   
