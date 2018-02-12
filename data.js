@@ -2,38 +2,81 @@ var CIRCLES = [
   {
     name: "Peach A",
     moderator: null,
-    game: null
+    game: null,
+    type: 0,
   },
   {
     name: "Peach B",
     moderator: null,
-    game: null
+    game: null,
+    type: 0,
   },
   {
     name: "Dogwood A",
     moderator: null,
-    game: null
+    game: null,
+    type: 0,
   },
   {
     name: "Dogwood B",
     moderator: null,
-    game: null
+    game: null,
+    type: 0,
   },
   {
     name: "King",
     moderator: null,
-    game: null
+    game: null,
+    type: 0,
   },
   {
     name: "Stone Mtn",
     moderator: null,
-    game: null
+    game: null,
+    type: 0,
   },
   {
     name: "Live Oak",
     moderator: null,
-    game: null
-  }
+    game: null,
+    type: 0,
+  },
+  {
+    name: "Custom 1",
+    moderator: null,
+    game: null,
+    type: 1,
+  },
+  {
+    name: "Custom 2",
+    moderator: null,
+    game: null,
+    type: 1,
+  },
+  {
+    name: "Custom 3",
+    moderator: null,
+    game: null,
+    type: 1,
+  },
+  {
+    name: "Custom 4",
+    moderator: null,
+    game: null,
+    type: 1,
+  },
+  {
+    name: "Custom 5",
+    moderator: null,
+    game: null,
+    type: 1,
+  },
+  {
+    name: "Custom 6",
+    moderator: null,
+    game: null,
+    type: 1,
+  },
 ];
 
 var VILLAGERS = [

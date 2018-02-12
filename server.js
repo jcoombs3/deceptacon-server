@@ -647,7 +647,7 @@ app.get("/circle", function (req, res) {
   };
   
   var getCircles = function (callback) {
-    db.collection("circle").find({}).sort({name: 1, game: 1, moderator: 1}).toArray(function (err, circles) {
+    db.collection("circle").find({}).sort({name: 1, type: 1, game: 1, moderator: 1}).toArray(function (err, circles) {
       if (err) {
         handleError(res, err.message, ERRORS.CIRCLE.ALL);
       } else {
