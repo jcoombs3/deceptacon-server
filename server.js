@@ -699,6 +699,7 @@ app.get("/circle", function (req, res) {
 app.post("/circle/reserve", function (req, res) {
   const villagerId = req.body.villagerId;
   const circleId = req.body.circleId;
+  const token = req.body.token;
   
   if (!villagerId) {
     handleError(res, "", ERRORS.MODERATE.NO_VILLAGER_ID, 400);
@@ -711,6 +712,7 @@ app.post("/circle/reserve", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       verifyVillager,
       verifyNotModerating,
       verifyCircle,
@@ -718,6 +720,12 @@ app.post("/circle/reserve", function (req, res) {
       retrieveUpdatedCircle
     ], function (err, circle) {
       res.status(200).json(circle);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(villagerId, token, res, () => {
+      callback();
     });
   };
   
