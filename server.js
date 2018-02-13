@@ -157,7 +157,7 @@ function checkAuthentication(id, token, res, callback) {
 // curl -G localhost:8080/test
 
 // curl -G localhost:8080/villager/5a7648ffc0f3bd0014f8f326
-// curl -G localhost:8080/villager/5a763d29222f20c941cc1af8
+// curl -G localhost:8080/villager/5a832b9cc5bd80001425af4b
 // curl -H "Content-Type: application/json" -d '{"username": "ancientwings", "pin":[2,2,2,2]}' localhost:8080/login
 
 app.get("/test", function (req, res) {
@@ -341,13 +341,19 @@ app.get("/villager/:id", function (req, res) {
   
   var getGames = function(villager, callback) {
     let iUserDetails = "userDetails." + req.params.id + ""; 
-    db.collection("game").find({$or:
-      [{moderator: req.params.id}, {villagers: {$in: [req.params.id]}}, {iUserDetails: {$exists: true}}]}, 
-      {timestamp: 1, moderator: 1, userDetails: 1, status: 1, circle: 1}).sort({timestamp: 1})
+    let idd = req.params.id;
+    console.log(iUserDetails);
+    db.collection("game").find({$or:[
+        {moderator: req.params.id},
+        {villagers: {$in: [req.params.id]}},
+        {iUserDetails: {$exists: true}}
+      ]}, 
+      {timestamp: 1, moderator: 1, userDetails: 1, status: 1, circle: 1})
       .toArray(function (err, games) {
         if (err) {
           handleError(res, err.message, ERRORS.VILLAGER.ONE);
         } else if (games) {
+          console.log(games);
           villager.gameHistory = games;
           if (villager.gameHistory.length > 0) {
             callback(null, villager);
@@ -832,6 +838,7 @@ app.post("/register/game", function (req, res) {
   const token = req.body.token;
   gameObj.moderator = villagerId;
   gameObj.villagers = [];
+  gameObj.leftVillagers = [];
   gameObj.placeholders = [];
   gameObj.timestamp = new Date();
   gameObj.circle = circleId;
@@ -1427,6 +1434,7 @@ app.post("/game/remove/villager", function (req, res) {
       checkToken,
       verifyVillager,
       verifyGame,
+      checkActive,
       removeVillager,
       getUpdatedGame,
       getModerator,
@@ -1467,6 +1475,24 @@ app.post("/game/remove/villager", function (req, res) {
       }
     });
   };
+  
+  var checkActive = function (game, callback) {
+    if (game.status.active) {
+      try {
+        let iTry = db.collection("game").findOneAndUpdate(
+          {_id: new ObjectId(gameId)},
+          {$addToSet: {"leftVillagers": villagerId}},
+          {maxTimeMS: 5}
+        );  
+      }
+      catch(e){
+        handleError(res, "", e, 400);
+      }
+      setTimeout(function() {
+        callback(null, game);
+      }, 10);
+    }
+  }
   
   var removeVillager = function (game, callback) {
     db.collection("game").update({
