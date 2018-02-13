@@ -350,7 +350,6 @@ app.get("/villager/:id", function (req, res) {
         if (err) {
           handleError(res, err.message, ERRORS.VILLAGER.ONE);
         } else if (games) {
-          console.log(games);
           villager.gameHistory = games;
           if (villager.gameHistory.length > 0) {
             callback(null, villager);
