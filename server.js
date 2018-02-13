@@ -564,24 +564,16 @@ app.post("/rights/villager", function (req, res) {
 app.post("/save/villager", function (req, res) {
   const villagerId = req.body._id;
   const token = req.body.token;
-  const firstname = req.body.firstname;
-  const lastname = req.body.lastname;
   const picture = req.body.picture;
   const color = req.body.color;
 
   if (!villagerId) {
     handleError(res, "", ERRORS.SAVE.NO_VILLAGER_ID, 400);
-  } else if (!firstname) {
-    handleError(res, "", ERRORS.SAVE.NO_FIRSTNAME, 400);      
-  } else if (!lastname) {
-    handleError(res, "", ERRORS.SAVE.NO_LASTNAME, 400);      
   } else if (!picture) {
     handleError(res, "", ERRORS.SAVE.NO_PICTURE, 400);      
   } else if (!color) {
     handleError(res, "", ERRORS.SAVE.NO_COLOR, 400);      
   }
-  
-  const fullname = firstname + " " + lastname;
   
   var beginAsync = function () {
     async.waterfall([
@@ -619,7 +611,7 @@ app.post("/save/villager", function (req, res) {
     try {
       db.collection("villager").findOneAndUpdate(
         {_id: new ObjectId(villagerId)},
-        {$set: {firstname: firstname, lastname: lastname, fullname: fullname, picture: picture, color: color}},
+        {$set: {picture: picture, color: color}},
         {upsert: true, returnNewDocument: true}, 
         function(err, doc) {
           if (err) { throw err; }
