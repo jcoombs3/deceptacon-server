@@ -340,13 +340,10 @@ app.get("/villager/:id", function (req, res) {
   };
   
   var getGames = function(villager, callback) {
-    let iUserDetails = "userDetails." + req.params.id + ""; 
-    let idd = req.params.id;
-    console.log(iUserDetails);
     db.collection("game").find({$or:[
         {moderator: req.params.id},
         {villagers: {$in: [req.params.id]}},
-        {iUserDetails: {$exists: true}}
+        {leftVillagers: {$in: [req.params.id]}}
       ]}, 
       {timestamp: 1, moderator: 1, userDetails: 1, status: 1, circle: 1})
       .toArray(function (err, games) {
