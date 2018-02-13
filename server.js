@@ -296,6 +296,7 @@ app.get("/villager/:id", function (req, res) {
         callback(null);
       },
       getVillager,
+      getCurrentGame,
       getGames,
       getCircleNames,
       getModerators,
@@ -317,6 +318,25 @@ app.get("/villager/:id", function (req, res) {
         handleError(res, "", ERRORS.VILLAGER.NO, 400);
       }
     });
+  };
+  
+  var getCurrentGame = function(villager, callback) {
+    if (villager.currentGame) {
+      db.collection("game").findOne(
+        {_id: new ObjectId(villager.currentGame.game._id)}, 
+        function (err, game) {
+          if (err) {
+            handleError(res, err.message, ERRORS.VILLAGER.ONE);
+          } else if (game) {
+            villager.currentGame.game = game;
+            callback(null, villager);
+          } else {
+            handleError(res, "", ERRORS.VILLAGER.NO, 400);
+          }
+        });
+    } else {
+      callback(null, villager);
+    }
   };
   
   var getGames = function(villager, callback) {
