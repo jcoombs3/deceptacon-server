@@ -1479,6 +1479,8 @@ app.post("/game/remove/villager", function (req, res) {
       setTimeout(function() {
         callback(null, game);
       }, 10);
+    } else {
+      callback(null, game);
     }
   }
   
