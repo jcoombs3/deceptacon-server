@@ -1913,6 +1913,8 @@ app.post("/game/end", function (req, res) {
 // CANCEL A GAME
 app.post("/game/cancel", function (req, res) {
   const gameId = req.body.gameId;
+  const modId = req.body.modId;
+  const token = req.body.token;
   
   if (!gameId) {
     handleError(res, "", ERRORS.GAME.NO_GAME_ID, 400);
@@ -1923,11 +1925,20 @@ app.post("/game/cancel", function (req, res) {
       function(callback) {
         callback(null);
       },
+      checkToken,
       cancelGame,
       makeCircleAvailable,
       retrieveUpdatedGame,
+      getModerator,
+      getVillagers
     ], function (err, game) {
       res.status(200).json(game);
+    });
+  };
+  
+  var checkToken = function (callback) {
+    checkAuthentication(modId, token, res, () => {
+      callback();
     });
   };
   
@@ -1979,6 +1990,36 @@ app.post("/game/cancel", function (req, res) {
         callback(null, iGame);
       } else {
         handleError(res, "", ERRORS.GAME.NO, 400);
+      }
+    });
+  };
+  
+  var getModerator = function (game, callback) {
+    db.collection("villager").findOne({_id: new ObjectId(game.moderator)}, {pin: 0}, function (err, villager) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ONE);
+      } else if (villager) {
+        game.moderator = villager;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.NO, 400);
+      }
+    });
+  };
+  
+  var getVillagers = function (game, callback) {
+    let arr = [];
+    for (var i = 0; i < game.villagers.length; i++) {
+      arr.push(new ObjectId(game.villagers[i]));
+    }
+    db.collection("villager").find({_id: {$in: arr}}, {pin:0}).toArray(function(err, villagers) {
+      if (err) {
+        handleError(res, err.message, ERRORS.VILLAGER.ALL);
+      } else if (villagers) {
+        game.villagers = villagers;
+        callback(null, game);
+      } else {
+        handleError(res, "", ERRORS.VILLAGER.ALL, 400);
       }
     });
   };
