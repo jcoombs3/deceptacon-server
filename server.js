@@ -1999,19 +1999,21 @@ app.post("/game/cancel", function (req, res) {
     for (var i = 0; i < game.villagers.length; i++) {
       arr.push(new ObjectId(game.villagers[i]));
     }
-    try {
-      let iTry = db.collection("villager").update(
-        {_id: {$in: arr}},
-        {$set: {"currentGame": null}},
-        {maxTimeMS: 5}
-      );
-    }
-    catch(e){
-      handleError(res, "", e, 400);
-    }
-    setTimeout(function() {
-      callback(null, game);
-    }, 10);
+    console.log(arr);
+    callback(null, game);
+//    try {
+//      let iTry = db.collection("villager").update(
+//        {_id: {$in: arr}},
+//        {$set: {"currentGame": null}},
+//        {maxTimeMS: 5}
+//      );
+//    }
+//    catch(e){
+//      handleError(res, "", e, 400);
+//    }
+//    setTimeout(function() {
+//      callback(null, game);
+//    }, 10);
   };
   
   beginAsync();
