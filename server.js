@@ -263,7 +263,7 @@ app.post("/login", function (req, res) {
             handleError(res, err.message, ERRORS.VILLAGER.ONE);
           } else if (game) {
             if (game.status.cancelled) {
-              villager.currentGame.game = null;
+              villager.currentGame = null;
             } else {
               villager.currentGame.game = game;
             }
@@ -333,7 +333,7 @@ app.get("/villager/:id", function (req, res) {
             handleError(res, err.message, ERRORS.VILLAGER.ONE);
           } else if (game) {
             if (game.status.cancelled) {
-              villager.currentGame.game = null;
+              villager.currentGame = null;
             } else {
               villager.currentGame.game = game;
             }
