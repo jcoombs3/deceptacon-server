@@ -262,7 +262,11 @@ app.post("/login", function (req, res) {
           if (err) {
             handleError(res, err.message, ERRORS.VILLAGER.ONE);
           } else if (game) {
-            villager.currentGame.game = game;
+            if (game.status.cancelled) {
+              villager.currentGame.game = null;
+            } else {
+              villager.currentGame.game = game;
+            }
             callback(null, villager);
           } else {
             handleError(res, "", ERRORS.VILLAGER.NO, 400);
@@ -328,7 +332,11 @@ app.get("/villager/:id", function (req, res) {
           if (err) {
             handleError(res, err.message, ERRORS.VILLAGER.ONE);
           } else if (game) {
-            villager.currentGame.game = game;
+            if (game.status.cancelled) {
+              villager.currentGame.game = null;
+            } else {
+              villager.currentGame.game = game;
+            }
             callback(null, villager);
           } else {
             handleError(res, "", ERRORS.VILLAGER.NO, 400);
@@ -1928,8 +1936,7 @@ app.post("/game/cancel", function (req, res) {
       checkToken,
       cancelGame,
       makeCircleAvailable,
-      retrieveUpdatedGame,
-      removeCurrentGameFromVillagers
+      retrieveUpdatedGame
     ], function (err, game) {
       res.status(200).json(game);
     });
@@ -1991,29 +1998,6 @@ app.post("/game/cancel", function (req, res) {
         handleError(res, "", ERRORS.GAME.NO, 400);
       }
     });
-  };
-  
-  var removeCurrentGameFromVillagers = function (game, callback) {
-    let arr = [];
-    arr.push(new ObjectId(game.moderator));
-    for (var i = 0; i < game.villagers.length; i++) {
-      arr.push(new ObjectId(game.villagers[i]));
-    }
-    console.log(arr);
-    callback(null, game);
-//    try {
-//      let iTry = db.collection("villager").update(
-//        {_id: {$in: arr}},
-//        {$set: {"currentGame": null}},
-//        {maxTimeMS: 5}
-//      );
-//    }
-//    catch(e){
-//      handleError(res, "", e, 400);
-//    }
-//    setTimeout(function() {
-//      callback(null, game);
-//    }, 10);
   };
   
   beginAsync();
