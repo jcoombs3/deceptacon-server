@@ -157,7 +157,7 @@ function checkAuthentication(id, token, res, callback) {
 // curl -G localhost:8080/test
 
 // curl -G localhost:8080/villager/5a7648ffc0f3bd0014f8f326
-// curl -G localhost:8080/villager/5a832b9cc5bd80001425af4b
+// curl -G localhost:8080/villager/5a83aef15fb2871905ea9ff6
 // curl -H "Content-Type: application/json" -d '{"username": "ancientwings", "pin":[2,2,2,2]}' localhost:8080/login
 
 app.get("/test", function (req, res) {
@@ -352,7 +352,7 @@ app.get("/villager/:id", function (req, res) {
         {moderator: req.params.id},
         {villagers: {$in: [req.params.id]}},
         {leftVillagers: {$in: [req.params.id]}}
-      ]}, 
+      ], "status.cancelled": false}, 
       {timestamp: 1, moderator: 1, userDetails: 1, status: 1, circle: 1})
       .toArray(function (err, games) {
         if (err) {
