@@ -1930,7 +1930,8 @@ app.post("/game/cancel", function (req, res) {
       makeCircleAvailable,
       retrieveUpdatedGame,
       getModerator,
-      getVillagers
+      getVillagers,
+      removeCurrentGameFromVillagers
     ], function (err, game) {
       res.status(200).json(game);
     });
@@ -2022,6 +2023,27 @@ app.post("/game/cancel", function (req, res) {
         handleError(res, "", ERRORS.VILLAGER.ALL, 400);
       }
     });
+  };
+  
+  var removeCurrentGameFromVillagers = function (game, callback) {
+    let arr = [];
+    arr.push(new ObjectId(game.moderator._id));
+    for (var i = 0; i < game.villagers.length; i++) {
+      arr.push(new ObjectId(game.villagers[i]));
+    }
+    try {
+      let iTry = db.collection("villager").update(
+        {_id: {$in: arr}},
+        {$set: {"currentGame": null}},
+        {maxTimeMS: 5}
+      );
+    }
+    catch(e){
+      handleError(res, "", e, 400);
+    }
+    setTimeout(function() {
+      callback(null, game);
+    }, 10);
   };
   
   beginAsync();
