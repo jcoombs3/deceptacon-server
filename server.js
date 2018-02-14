@@ -1929,8 +1929,6 @@ app.post("/game/cancel", function (req, res) {
       cancelGame,
       makeCircleAvailable,
       retrieveUpdatedGame,
-      getModerator,
-      getVillagers,
       removeCurrentGameFromVillagers
     ], function (err, game) {
       res.status(200).json(game);
@@ -1995,39 +1993,9 @@ app.post("/game/cancel", function (req, res) {
     });
   };
   
-  var getModerator = function (game, callback) {
-    db.collection("villager").findOne({_id: new ObjectId(game.moderator)}, {pin: 0}, function (err, villager) {
-      if (err) {
-        handleError(res, err.message, ERRORS.VILLAGER.ONE);
-      } else if (villager) {
-        game.moderator = villager;
-        callback(null, game);
-      } else {
-        handleError(res, "", ERRORS.VILLAGER.NO, 400);
-      }
-    });
-  };
-  
-  var getVillagers = function (game, callback) {
-    let arr = [];
-    for (var i = 0; i < game.villagers.length; i++) {
-      arr.push(new ObjectId(game.villagers[i]));
-    }
-    db.collection("villager").find({_id: {$in: arr}}, {pin:0}).toArray(function(err, villagers) {
-      if (err) {
-        handleError(res, err.message, ERRORS.VILLAGER.ALL);
-      } else if (villagers) {
-        game.villagers = villagers;
-        callback(null, game);
-      } else {
-        handleError(res, "", ERRORS.VILLAGER.ALL, 400);
-      }
-    });
-  };
-  
   var removeCurrentGameFromVillagers = function (game, callback) {
     let arr = [];
-    arr.push(new ObjectId(game.moderator._id));
+    arr.push(new ObjectId(game.moderator));
     for (var i = 0; i < game.villagers.length; i++) {
       arr.push(new ObjectId(game.villagers[i]));
     }
