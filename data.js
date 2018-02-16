@@ -122,21 +122,6 @@ var ALIGNMENTS = [
 
 var GOOD_ROLES = [
   {
-    name: 'Mad Bomber'
-  },
-  {
-    name: 'Villager'
-  },
-  {
-    name: 'Seer'
-  },
-  {
-    name: 'Bodyguard'
-  },
-  {
-    name: 'Gunsmith'
-  },
-  {
     name: 'Apprentice Seer'
   },
   {
@@ -146,28 +131,52 @@ var GOOD_ROLES = [
     name: 'Beholder'
   },
   {
+    name: 'Bodyguard'
+  },
+  {
     name: 'Cupid'
   },
   {
-    name: 'The Count'
+    name: 'Cursed (Not Turned)'
   },
   {
     name: 'Diseased'
   },
   {
+    name: 'Doppleganger (Not Turned)'
+  },
+  {
+    name: 'Dr Helgo (Good)'
+  },
+  {
+    name: 'Drunk (Not Turned)'
+  },
+  {
+    name: "Frankenstein's Monster"
+  },
+  {
     name: 'Ghost'
+  },
+  {
+    name: 'Gunsmith'
   },
   {
     name: 'Hunter'
   },
   {
-    name: 'Village Idiot'
-  },
-  {
     name: 'Insomniac'
   },
   {
+    name: 'Leprechaun'
+  },
+  {
+    name: 'Lovers (2 Goods)'
+  },
+  {
     name: 'Lycan'
+  },
+  {
+    name: 'Mad Bomber'
   },
   {
     name: 'Martyr'
@@ -179,13 +188,16 @@ var GOOD_ROLES = [
     name: 'Mayor'
   },
   {
+    name: 'Mentalist'
+  },
+  {
+    name: 'Mummy'
+  },
+  {
     name: 'Old Hag'
   },
   {
     name: 'Old Man'
-  },
-  {
-    name: 'Private Investigator'
   },
   {
     name: 'Pacifist'
@@ -197,7 +209,28 @@ var GOOD_ROLES = [
     name: 'Prince'
   },
   {
+    name: 'Private Investigator'
+  },
+  {
+    name: 'Revealer'
+  },
+  {
+    name: 'Seer'
+  },
+  {
     name: 'Spellcaster'
+  },
+  {
+    name: 'The Count'
+  },
+  {
+    name: 'The Huntress'
+  },
+  {
+    name: 'The Thing'
+  },
+  {
+    name: 'Time Bandit'
   },
   {
     name: 'Tough Guy'
@@ -206,16 +239,16 @@ var GOOD_ROLES = [
     name: 'Troublemaker'
   },
   {
-    name: 'The Thing'
+    name: 'Villager'
+  },
+  {
+    name: 'Villager Idiot'
+  },
+  {
+    name: 'Virginia Wolf'
   },
   {
     name: 'Witch'
-  },
-  {
-    name: 'Cursed (Not Turned)'
-  },
-  {
-    name: 'Leprechaun'
   }
 ];
 
@@ -224,31 +257,46 @@ var EVIL_ROLES = [
     name: 'Alpha Wolf'
   },
   {
+    name: 'Big Bad Wolf'
+  },
+  {
+    name: 'Dire Wolf'
+  },
+  {
+    name: 'Dr Helgo (Wolf)'
+  },
+  {
+    name: 'Dream Wolf'
+  },
+  {
+    name: 'Fang Face'
+  },
+  {
+    name: 'Fruit Brute'
+  },
+  {
+    name: 'Lone Wolf'
+  },
+  {
+    name: 'Minion'
+  },
+  {
+    name: 'Sorcerer'
+  },
+  {
+    name: 'Teen Wolf'
+  },
+  {
     name: 'Werewolf'
   },
   {
     name: 'Wolf Cub'
   },
   {
-    name: 'Minion'
-  },
-  {
-    name: 'Frute Brute'
-  },
-  {
     name: 'Wolf Man'
   },
   {
-    name: 'Sorcerer'
-  },
-  {
-    name: 'Dream Wolf'
-  },
-  {
-    name: 'Lone Wolf'
-  },
-  {
-    name: 'Dire Wolf'
+    name: 'Wolverine'
   }
 ];
 
@@ -261,6 +309,9 @@ var VAMPIRE_ROLES = [
   },
   {
     name: "Dracula's Wife"
+  },
+  {
+    name: "Dr Helgo (Vampire)"
   }
 ];
 
@@ -270,6 +321,9 @@ var CULT_ROLES = [
   },
   {
     name: 'Cult Initiate'
+  },
+  {
+    name: "Dr Helgo (Cult)"
   }
 ];
 
@@ -278,13 +332,10 @@ var NEUTRAL_ROLES = [
     name: 'Tanner'
   },
   {
-    name: 'The Lovers'
+    name: 'Lovers (1 Good, 1 Evil)'
   },
   {
     name: 'Bogeyman'
-  },
-  {
-    name: 'Doppleganger (Not Turned)'
   },
   {
     name: 'Drunk (Not Turned)'
@@ -303,6 +354,15 @@ var NEUTRAL_ROLES = [
   },
   {
     name: 'Nostradamus'
+  },
+  {
+    name: 'The Blob'
+  },
+  {
+    name: 'Zombie'
+  },
+  {
+    name: "Dr Helgo (Neutral)"
   }
 ];
 
